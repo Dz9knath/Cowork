@@ -5,157 +5,176 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reel 2 Real · Cowork</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@10.3.1/dist/gridstack.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gridstack@10.3.1/dist/gridstack-all.js"></script>
 <style>
   :root{
-    /* Reel 2 Real "Travel teal" palette */
-    --bg:#072B35;      /* darker than Deep, page background */
-    --panel:#0B3C49;   /* Deep */
-    --card:#10495A;
-    --line:#1B5F70;
-    --text:#F3F7F6;    /* Mist */
-    --muted:#8FB5BA;
-    --coral:#F2603F;
-    --teal:#1E9C8E;
-    --sun:#E9A92A;
-    /* status colors */
-    --green:#35D07F; --blue:#5AA2FF; --red:#FF5A5A; --gray:#8A9BA0;
+    /* Reel 2 Real "Travel teal" */
+    --deep:#0B3C49; --teal:#1E9C8E; --coral:#F2603F; --sun:#E9A92A; --mist:#F3F7F6;
+    --bg:#082F3A;
+    --box:#0B3C49;
+    --card:#0F4757;
+    --line:rgba(243,247,246,.10);
+    --line2:rgba(243,247,246,.20);
+    --text:#F3F7F6;
+    --muted:#92B3B8;
+    --green:#35D07F; --blue:#5AA2FF; --red:#FF5A5A; --gray:#8A9BA0; --purple:#A78BFA;
+    --r:8px; --r2:6px;
   }
   *{box-sizing:border-box}
-  html{font-size:17px}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.4;min-height:100vh}
-  button,input{font:inherit;color:var(--text)}
-  button{cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 12px}
-  button:hover{border-color:var(--coral)}
-  button.primary{background:var(--coral);border-color:var(--coral);color:#fff;font-weight:700}
-  input{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;width:100%;outline:none}
-  input:focus{border-color:var(--coral)}
+  html{font-size:16px}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.4;min-height:100vh;-webkit-font-smoothing:antialiased}
+  button,input{font:inherit;color:inherit}
+  button{cursor:pointer;background:transparent;border:1px solid var(--line2);border-radius:var(--r2);padding:4px 10px;transition:border-color .12s,background .12s}
+  button:hover{border-color:var(--sun)}
+  button.primary{background:var(--coral);border-color:var(--coral);color:#fff;font-weight:600}
+  button.primary:hover{background:#f77654;border-color:#f77654}
+  input{background:rgba(0,0,0,.18);border:1px solid var(--line2);border-radius:var(--r2);padding:7px 10px;width:100%;outline:none}
+  input:focus{border-color:var(--sun)}
+  .ic{display:inline-flex;vertical-align:middle}
 
-  header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
-  .brand{display:flex;align-items:baseline;gap:10px}
-  #logo{display:none;height:36px;align-self:center}
-  #wordmark{font-size:1.5rem;font-weight:700;letter-spacing:-.5px}
+  /* header: light band so the logo sits on its own mist background */
+  header{display:flex;align-items:center;gap:12px;padding:10px 20px;background:var(--mist);color:var(--deep);border-bottom:1px solid rgba(11,60,73,.12)}
+  header button{color:var(--deep);border-color:rgba(11,60,73,.28)}
+  header button:hover{border-color:var(--coral)}
+  .brand{display:flex;align-items:center;gap:12px}
+  #logo{display:none;height:38px}
+  #wordmark{font-size:1.4rem;font-weight:700;letter-spacing:-.4px;color:var(--deep)}
   #wordmark b{color:var(--coral);margin:0 .12em}
-  .brand .sub{color:var(--muted);font-size:.95rem}
+  .brand .sub{color:#4d7580;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border-left:1px solid rgba(11,60,73,.2);padding-left:12px}
   .spacer{flex:1}
-  #mode{font-size:.8rem;padding:3px 10px;border-radius:99px;background:#3a2f14;color:var(--sun)}
-  #mode.live{background:#0f3a33;color:var(--green)}
-  #help{width:34px;height:34px;border-radius:50%;padding:0;font-weight:700}
+  #mode{font-size:.78rem;font-weight:600;padding:3px 10px;border-radius:99px;background:#F5E3B8;color:#7a5200}
+  #mode.live{background:#D3F1E2;color:#12703f}
+  #help{width:32px;height:32px;border-radius:50%;padding:0;font-weight:700}
 
-  main{display:flex;padding:14px;min-height:calc(100vh - 118px);align-items:stretch}
-  .panel{flex:0 0 310px;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;position:relative}
-  .panel.over,.col.over,.ideas.over{outline:2px dashed var(--coral);outline-offset:-4px}
-  .divider{flex:0 0 12px;cursor:col-resize;position:relative;touch-action:none}
-  .divider::after{content:"";position:absolute;left:50%;top:12px;bottom:12px;width:3px;margin-left:-1.5px;border-radius:3px;background:var(--line);transition:background .15s}
-  .divider:hover::after,.dragging .divider.active::after{background:var(--coral)}
-  body.dragging{user-select:none;cursor:col-resize}
+  main{padding:10px 12px 20px}
+  .grid-stack>.grid-stack-item>.grid-stack-item-content{overflow:visible!important}
+  .grid-stack-item.raise{z-index:40}
+  .grid-stack>.grid-stack-placeholder>.placeholder-content{border:1px dashed var(--sun);background:rgba(233,169,42,.08);border-radius:var(--r)}
+  .grid-stack>.grid-stack-item>.ui-resizable-handle{filter:invert(1);opacity:.35}
+  .grid-stack>.grid-stack-item:hover>.ui-resizable-handle{opacity:.8}
 
-  .who{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.3rem}
-  .who .tag{font-size:.75rem;font-weight:500}
-  .who .plus{margin-left:auto}
-  .dot{width:12px;height:12px;border-radius:50%;background:var(--gray);flex:none}
-  .dot.on{background:var(--green);box-shadow:0 0 10px var(--green)}
-  .seen{color:var(--muted);font-size:.9rem;margin:2px 0 10px}
+  .box{height:100%;display:flex;flex-direction:column;background:var(--box);border:1px solid var(--line);border-top:2px solid var(--sun);border-radius:var(--r);box-shadow:0 1px 2px rgba(0,0,0,.25)}
+  .box.person{border-top-color:var(--coral)}
+  .box.over{outline:2px dashed var(--sun);outline-offset:-4px}
+  .box-head{display:flex;align-items:center;gap:6px;padding:9px 10px 9px 14px;cursor:grab;flex:none;min-height:42px}
+  .box-head{user-select:none}
+  .box-head:active{cursor:grabbing}
+  .box-head .name{flex:1;min-width:0;font-weight:600;font-size:.98rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .box-head .n{color:var(--sun);font-size:.85rem;font-weight:600;margin-right:2px}
+  .box-head input.rename{padding:3px 8px;font-weight:600}
+  .box-body{flex:1;min-height:0;overflow:auto;padding:4px 12px 12px;scrollbar-width:thin;scrollbar-color:#24697b transparent}
+  .iconbtn{width:28px;height:28px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-color:transparent;color:var(--muted);border-radius:var(--r2)}
+  .iconbtn:hover{color:var(--text);border-color:var(--line2)}
+  .iconbtn.yes{color:var(--green);border-color:rgba(53,208,127,.45)}
+  .iconbtn.no{color:var(--muted)}
+  .confirm{display:inline-flex;gap:2px}
+  .hint{color:var(--muted);font-size:.88rem;padding:4px 2px}
+  .draft{margin:4px 0 8px}
 
-  .statuswrap{position:relative;margin-bottom:12px}
-  .status{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:58px}
+  /* people panels */
+  .who{display:flex;align-items:center;gap:9px;font-weight:700;font-size:1.15rem;flex:1}
+  .who .tag{font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--gray);flex:none}
+  .dot.on{background:var(--green);box-shadow:0 0 0 3px rgba(53,208,127,.2)}
+  .seen{color:var(--muted);font-size:.85rem;padding:0 14px 8px;flex:none}
+  .statuswrap{position:relative;padding:0 12px 8px;flex:none}
+  .status{width:100%;display:flex;align-items:center;gap:11px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--r2);padding:9px 11px;min-height:54px}
   .status.mine{cursor:pointer}
-  .status.mine:hover{border-color:var(--coral)}
-  .sdot{width:14px;height:14px;border-radius:50%;flex:none;background:var(--gray)}
+  .status.mine:hover{border-color:var(--sun)}
+  .sdot{width:12px;height:12px;border-radius:50%;flex:none;background:var(--gray)}
   .sdot.green{background:var(--green)} .sdot.blue{background:var(--blue)} .sdot.red{background:var(--red)}
-  .sdot.gray{background:var(--gray)} .sdot.teal{background:var(--teal)}
+  .sdot.gray{background:var(--gray)} .sdot.teal{background:var(--teal)} .sdot.sun{background:var(--sun)}
+  .sdot.coral{background:var(--coral)} .sdot.purple{background:var(--purple)}
   .sbody{flex:1;min-width:0}
-  .stext{font-weight:700}
-  .scap{color:var(--muted);font-size:.85rem}
-  .chev{color:var(--muted)}
-  .menu{display:none;position:absolute;z-index:5;left:0;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 12px 30px rgba(0,0,0,.45)}
+  .stext{font-weight:600;font-size:.95rem}
+  .scap{color:var(--muted);font-size:.82rem}
+  .chev{color:var(--muted);font-size:.8rem}
+  .menu{display:none;position:absolute;z-index:5;left:12px;right:12px;top:calc(100% - 4px);background:#0d4453;border:1px solid var(--line2);border-radius:var(--r);padding:6px;box-shadow:0 14px 34px rgba(0,0,0,.5)}
   .menu.open{display:block}
-  .menu .opt{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;text-align:left;padding:9px 10px;border-radius:8px}
-  .menu .opt:hover{background:var(--card)}
-  .menu .custom{padding:6px 4px 2px}
+  .menu .opt{display:flex;align-items:center;gap:10px;width:100%;border:0;text-align:left;padding:8px 9px;border-radius:var(--r2)}
+  .menu .opt:hover{background:rgba(255,255,255,.07)}
+  .menu .custom{display:flex;gap:8px;align-items:center;padding:8px 4px 4px;border-top:1px solid var(--line);margin-top:4px}
+  .menu .cdot{width:30px;height:30px;padding:0;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}
+  .swatches{display:none;gap:7px;padding:8px 6px 4px;flex-wrap:wrap}
+  .swatches.open{display:flex}
+  .swatches button{width:24px;height:24px;border-radius:50%;padding:0;border:2px solid transparent}
+  .swatches button.sel{border-color:var(--text)}
+  h3.sec{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:14px 0 8px;font-weight:700}
 
-  h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin:16px 0 8px;font-weight:700}
-  .hint{color:var(--muted);font-size:.9rem;padding:4px 2px}
-
-  .boardwrap{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:12px}
-  .cols{display:flex;flex:1;min-width:0;overflow-x:auto;align-items:stretch}
-  .col{flex:1 1 0;min-width:150px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;min-height:240px}
-  .col h2{font-size:1.05rem;margin:0 0 10px;display:flex;align-items:center;gap:6px}
-  .col h2 .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .col h2 .n{color:var(--muted);font-weight:400;font-size:.85rem}
-  .iconbtn{padding:0 7px;line-height:24px;font-size:.9rem;border-radius:8px;background:transparent;border-color:transparent;color:var(--muted)}
-  .iconbtn:hover{color:var(--text);border-color:var(--line)}
-  .addcol{flex:0 0 52px;margin-left:12px;border:1px dashed var(--line);background:transparent;color:var(--muted);border-radius:16px;font-size:1.4rem}
-
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:grab;display:flex;flex-direction:column;gap:6px}
+  /* cards */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);padding:9px 11px;margin-bottom:8px;cursor:grab;display:flex;flex-direction:column;gap:6px}
+  .card:hover{border-color:var(--line2)}
   .card.dragging{opacity:.4}
-  .card .t{word-break:break-word}
-  .card.done .t{text-decoration:line-through;color:var(--muted)}
-  .card .meta{display:flex;gap:6px;align-items:center;font-size:.8rem;color:var(--muted);flex-wrap:wrap}
+  .card .t{word-break:break-word;font-size:.95rem;cursor:pointer}
+  .card.done .t{text-decoration:line-through;color:var(--muted);cursor:default}
+  .card .meta{display:flex;gap:6px;align-items:center;font-size:.78rem;color:var(--muted);flex-wrap:wrap}
   .card .meta .sp{flex:1}
-  .card button{padding:2px 9px;font-size:.8rem;border-radius:8px}
-  .tag{background:#0f5560;color:#7fe0d2;padding:1px 9px;border-radius:99px}
+  .card .meta button.sm{padding:1px 8px;font-size:.78rem}
+  .tag{background:rgba(30,156,142,.2);color:#7fe0d2;padding:1px 8px;border-radius:99px}
   .doneat{color:var(--green)}
+  .due{display:inline-flex;align-items:center;gap:6px;padding:1px 8px;border-radius:99px;font-size:.78rem;border:1px solid var(--line2);color:var(--text)}
+  .due .dd{width:7px;height:7px;border-radius:50%;background:var(--teal)}
+  .due.today{border-color:var(--sun);color:var(--sun)} .due.today .dd{background:var(--sun)}
+  .due.over{border-color:var(--red);color:var(--red)} .due.over .dd{background:var(--red)}
+  .sugg{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.8rem;background:rgba(233,169,42,.1);border:1px solid rgba(233,169,42,.35);border-radius:var(--r2);padding:5px 8px;color:var(--sun)}
+  .sugg.mute{background:transparent;border-color:var(--line);color:var(--muted)}
+  .sugg .sp{flex:1}
+  .sugg button{padding:0 8px;font-size:.78rem}
 
-  .ideas{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
-  .ideas h3{margin:0 0 8px;display:flex;align-items:center;gap:8px}
-  .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chip{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--sun);border-radius:10px;padding:6px 8px 6px 12px;cursor:grab}
-  .chip .x{padding:0 6px;background:transparent;border-color:transparent;color:var(--muted)}
-  .draft{margin:0 0 8px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;padding-top:2px}
+  .chip{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--sun);border-radius:var(--r2);padding:3px 4px 3px 11px;cursor:grab;font-size:.92rem}
+  .chip .by{color:var(--muted);font-size:.75rem}
 
-  #who{position:fixed;inset:0;background:rgba(4,20,26,.94);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:20}
+  /* calendar popover */
+  .calpop{position:fixed;z-index:100;width:268px;background:#0d4453;border:1px solid var(--line2);border-radius:var(--r);padding:12px;box-shadow:0 18px 44px rgba(0,0,0,.55)}
+  .calpop .ttl{font-size:.8rem;color:var(--muted);margin-bottom:8px}
+  .calpop .nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-weight:600}
+  .calpop .grid7{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+  .calpop .wd{font-size:.7rem;color:var(--muted);padding:3px 0}
+  .calpop .day{padding:6px 0;border:0;border-radius:var(--r2);font-size:.88rem}
+  .calpop .day:hover:not(:disabled){background:rgba(233,169,42,.22)}
+  .calpop .day:disabled{color:rgba(243,247,246,.25);cursor:default}
+  .calpop .day.today{box-shadow:inset 0 0 0 1px var(--sun)}
+  .calpop .day.sel{background:var(--coral);color:#fff}
+  .calpop .foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:.82rem;color:var(--sun);min-height:26px}
+
+  #who{position:fixed;inset:0;background:rgba(4,22,28,.95);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:200}
   #who.show{display:flex}
-  #who .q{font-size:1.5rem;font-weight:700;margin-bottom:6px}
-  #who button{width:260px;padding:16px 0;font-size:1.2rem;border-radius:14px}
+  #who .q{font-size:1.4rem;font-weight:700;margin-bottom:6px}
+  #who button{width:260px;padding:15px 0;font-size:1.1rem;border-radius:10px}
 
-  #tour{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);width:min(440px,calc(100vw - 24px));background:var(--panel);border:2px solid var(--coral);border-radius:16px;padding:16px 18px;z-index:30;display:none;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+  #tour{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);width:min(450px,calc(100vw - 24px));background:#0d4453;border:1px solid var(--line2);border-top:3px solid var(--coral);border-radius:var(--r);padding:16px 18px;z-index:150;display:none;box-shadow:0 18px 44px rgba(0,0,0,.55)}
   #tour.show{display:block}
-  #tour h4{margin:0 0 6px;font-size:1.15rem}
-  #tour p{margin:0 0 14px;color:var(--text)}
+  #tour h4{margin:0 0 6px;font-size:1.05rem}
+  #tour p{margin:0 0 14px;color:#dfeceb;font-size:.95rem}
   #tour .row{display:flex;gap:8px;align-items:center}
-  #tour .steps{color:var(--muted);font-size:.85rem;flex:1}
-  .tour-hl{outline:3px solid var(--coral)!important;outline-offset:3px;border-radius:14px;position:relative;z-index:6}
+  #tour .steps{color:var(--muted);font-size:.82rem;flex:1}
+  .tour-hl{outline:2px solid var(--coral)!important;outline-offset:3px;border-radius:10px}
 
-  footer{padding:10px 18px 20px;color:var(--muted);font-size:.9rem}
-  footer a{color:var(--coral);cursor:pointer}
-
-  @media(max-width:900px){
-    main{flex-direction:column;gap:12px}
-    .panel{flex:none!important}
-    .divider{display:none}
-    .boardwrap{order:-1}
-    .cols{flex-direction:column;overflow:visible;gap:12px}
-    .col{flex:none!important}
-    .addcol{margin-left:0;flex:none;min-height:52px}
-  }
+  footer{padding:2px 20px 20px;color:var(--muted);font-size:.88rem}
+  footer a{color:var(--sun);cursor:pointer}
+  @media(max-width:820px){ .brand .sub{display:none} #logo{height:30px} }
 </style>
 </head>
 <body>
 
 <header>
   <div class="brand">
-    <img id="logo" src="logo.png" alt="Reel 2 Real">
+    <img id="logo" src="logo-lockup.png" alt="Reel 2 Real">
     <span id="wordmark">Reel<b>2</b>Real</span>
-    <span class="sub">cowork</span>
+    <span class="sub">Cowork</span>
   </div>
   <div class="spacer"></div>
+  <button id="addCol">+ Column</button>
   <span id="mode">local mode</span>
   <button id="help" title="Show the tour again">?</button>
 </header>
 
-<main id="main">
-  <section class="panel" id="panel-caden"></section>
-  <div class="divider" id="div-caden"></div>
-  <section class="boardwrap" id="boardwrap">
-    <div class="cols" id="cols"></div>
-    <div class="ideas" id="ideas"></div>
-  </section>
-  <div class="divider" id="div-ben"></div>
-  <section class="panel" id="panel-ben"></section>
-</main>
+<main><div class="grid-stack" id="grid"></div></main>
 
-<footer>You are <b id="meName"></b> (<a id="switch">switch</a>)</footer>
+<footer>You are <b id="meName"></b> (<a id="switch">switch</a>) &nbsp;·&nbsp; <a id="resetLayout">Reset layout</a></footer>
 
 <div id="who">
   <div class="q">Who are you?</div>
@@ -191,7 +210,6 @@ const DEFAULT_COLS = [
   {id:"marketing", name:"Marketing"},
   {id:"other", name:"Other"},
 ];
-// mode "since" -> "since 5 min ago", mode "ago" -> "5 min ago"
 const STATUSES = [
   {k:"online",    label:"Online",                          color:"green", mode:"since"},
   {k:"vibe",      label:"Online · vibe coding",            color:"blue",  mode:"since"},
@@ -200,6 +218,7 @@ const STATUSES = [
   {k:"uploaded",  label:"Uploaded",                        color:"gray",  mode:"ago"},
   {k:"away",      label:"Away",                            color:"gray",  mode:"ago"},
 ];
+const SWATCHES = ["green","blue","red","gray","teal","sun","coral","purple"];
 const ONLINE_WINDOW = 75_000;
 const HEARTBEAT = 30_000;
 
@@ -244,8 +263,6 @@ const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
 $("#mode").textContent = store.live ? "live sync" : "local mode (no Firebase config)";
 $("#mode").classList.toggle("live", store.live);
-
-// logo: shows if logo.png exists next to this file, otherwise the text wordmark stays
 const logo=$("#logo");
 logo.onload=()=>{logo.style.display="block";$("#wordmark").hidden=true};
 
@@ -270,6 +287,19 @@ function ago(ts){
   const d=Math.floor(hr/24); return `${d} d ago`;
 }
 const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+const ICONS={
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  pencil:'<path d="M4 20h4L19 9l-4-4L4 16v4z"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  check:'<path d="M5 13l4 4L19 7"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+};
+function icon(n,size=15){
+  const s=h("span",{class:"ic"});
+  s.innerHTML=`<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]}</svg>`;
+  return s;
+}
+const iconbtn=(n,title,onclick,cls="")=>h("button",{class:"iconbtn "+cls,title,onclick},icon(n));
 
 let me=localStorage.getItem("cowork-me");
 const other=()=>me==="ben"?"caden":"ben";
@@ -286,52 +316,161 @@ $("#switch").onclick=pickIdentity;
 
 // ─── presence ───
 function heartbeat(){ if(me&&!document.hidden) store.setPresence(me,{lastSeen:Date.now()}); }
-function setStatus(k,custom){
+function setStatus(k,custom,color){
   const def=STATUSES.find(s=>s.k===k);
-  store.setPresence(me,{statusKey:custom?"custom":k,statusText:custom||def.label,since:Date.now(),lastSeen:Date.now()});
+  store.setPresence(me,{
+    statusKey:custom?"custom":k, statusText:custom||def.label,
+    statusColor:custom?(color||"teal"):null,
+    since:Date.now(), lastSeen:Date.now()
+  });
 }
 
-// ─── sizes (resizable panels & columns, saved on this device) ───
-let sizes={caden:310,ben:310,cols:{}};
-try{ sizes={...sizes,...JSON.parse(localStorage.getItem("cowork-sizes")||"{}")}; sizes.cols=sizes.cols||{} }catch{}
-const saveSizes=()=>{ try{localStorage.setItem("cowork-sizes",JSON.stringify(sizes))}catch{} };
-function applySizes(){
-  $("#panel-caden").style.flexBasis=sizes.caden+"px";
-  $("#panel-ben").style.flexBasis=sizes.ben+"px";
-  $$(".col").forEach(c=>c.style.flexGrow=sizes.cols[c.dataset.id]||1);
+// ─── deadlines ───
+const pad=n=>String(n).padStart(2,"0");
+const toISO=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const fromISO=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const today0=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate())};
+const daysUntil=iso=>Math.round((fromISO(iso)-today0())/864e5);
+function dueInfo(iso){
+  const n=daysUntil(iso);
+  if(n<0) return {cls:"over",text:`overdue by ${-n} day${n<-1?"s":""}`};
+  if(n===0) return {cls:"today",text:"due today"};
+  return {cls:"future",text:`due in ${n} day${n>1?"s":""}`};
 }
-function startDrag(e,kind,info,divEl){
-  e.preventDefault();
-  const x0=e.clientX; let move;
-  if(kind==="panel"){
-    const w0=$("#panel-"+info.who).getBoundingClientRect().width;
-    move=dx=>{ sizes[info.who]=clamp(w0+info.dir*dx,220,560); applySizes(); };
-  }else{
-    const a=document.querySelector(`.col[data-id="${info.a}"]`), b=document.querySelector(`.col[data-id="${info.b}"]`);
-    const aw=a.getBoundingClientRect().width, bw=b.getBoundingClientRect().width;
-    const S=(sizes.cols[info.a]||1)+(sizes.cols[info.b]||1);
-    move=dx=>{
-      const na=clamp(aw+dx,150,Math.max(150,aw+bw-150));
-      sizes.cols[info.a]=S*na/(aw+bw); sizes.cols[info.b]=S-sizes.cols[info.a]; applySizes();
-    };
-  }
-  document.body.classList.add("dragging"); divEl.classList.add("active");
-  const mv=ev=>move(ev.clientX-x0);
-  const up=()=>{
-    removeEventListener("pointermove",mv); removeEventListener("pointerup",up);
-    document.body.classList.remove("dragging"); divEl.classList.remove("active"); saveSizes();
+let calEl=null;
+function closeCal(){ if(calEl){calEl.remove();calEl=null;} document.removeEventListener("mousedown",calOutside); }
+function calOutside(e){ if(calEl&&!calEl.contains(e.target)) closeCal(); }
+function openCal({anchor,title,current,onPick,onClear}){
+  closeCal();
+  let view=current?fromISO(current):today0(); view=new Date(view.getFullYear(),view.getMonth(),1);
+  const pop=h("div",{class:"calpop"}); calEl=pop; document.body.append(pop);
+  const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const draw=()=>{
+    pop.replaceChildren();
+    const hint=h("span",{});
+    pop.append(h("div",{class:"ttl"},title));
+    pop.append(h("div",{class:"nav"},
+      h("button",{class:"iconbtn",title:"Previous month",onclick:()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);draw()}},"‹"),
+      h("span",{},`${MONTHS[view.getMonth()]} ${view.getFullYear()}`),
+      h("button",{class:"iconbtn",title:"Next month",onclick:()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);draw()}},"›")));
+    const g=h("div",{class:"grid7"});
+    ["Mo","Tu","We","Th","Fr","Sa","Su"].forEach(d=>g.append(h("div",{class:"wd"},d)));
+    const first=new Date(view.getFullYear(),view.getMonth(),1);
+    const offset=(first.getDay()+6)%7;
+    for(let i=0;i<offset;i++) g.append(h("div",{}));
+    const dim=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
+    const t0=today0();
+    for(let d=1;d<=dim;d++){
+      const date=new Date(view.getFullYear(),view.getMonth(),d), iso=toISO(date);
+      const b=h("button",{class:"day"+(+date===+t0?" today":"")+(iso===current?" sel":"")},String(d));
+      if(date<t0) b.disabled=true;
+      else{
+        b.onmouseenter=()=>{const n=daysUntil(iso);hint.textContent=n===0?"Today":n===1?"Tomorrow":`In ${n} days`};
+        b.onmouseleave=()=>{hint.textContent=""};
+        b.onclick=()=>{closeCal();onPick(iso)};
+      }
+      g.append(b);
+    }
+    pop.append(g);
+    pop.append(h("div",{class:"foot"},hint,
+      current&&onClear?h("button",{class:"sm",onclick:()=>{closeCal();onClear()}},"Clear"):h("span",{})));
   };
-  addEventListener("pointermove",mv); addEventListener("pointerup",up);
+  draw();
+  const r=anchor.getBoundingClientRect();
+  let left=clamp(r.left,8,innerWidth-pop.offsetWidth-8);
+  let top=r.bottom+6; if(top+pop.offsetHeight>innerHeight-8) top=Math.max(8,r.top-pop.offsetHeight-6);
+  pop.style.left=left+"px"; pop.style.top=top+"px";
+  setTimeout(()=>document.addEventListener("mousedown",calOutside),0);
 }
-function divider(kind,info){
-  const d=h("div",{class:"divider"});
-  d.onpointerdown=e=>startDrag(e,kind,info,d);
-  return d;
+addEventListener("keydown",e=>{ if(e.key==="Escape") closeCal(); });
+function openDeadline(id,t,anchor){
+  const direct=!t.owner||t.owner===me;
+  if(direct){
+    openCal({anchor,title:"Set deadline",current:t.due,
+      onPick:iso=>store.setTask(id,{due:iso,dueSuggest:null}),
+      onClear:()=>store.setTask(id,{due:null,dueSuggest:null})});
+  }else{
+    const mine=t.dueSuggest&&t.dueSuggest.by===me;
+    openCal({anchor,title:`Suggest a deadline to ${PEOPLE[t.owner]}`,current:mine?t.dueSuggest.at:null,
+      onPick:iso=>store.setTask(id,{dueSuggest:{at:iso,by:me}}),
+      onClear:()=>store.setTask(id,{dueSuggest:null})});
+  }
+}
+
+// ─── transient UI state ───
+let draft=null;        // {where, text}
+let renaming=null;     // {id, text}
+let confirming=null;   // key of the control showing ✓ ✕
+let rendering=false;
+function rerender(){ renderBoard(); renderLists(); renderIdeas(); }
+function confirmControl(key,title,onYes){
+  if(confirming===key) return h("span",{class:"confirm"},
+    iconbtn("check","Confirm",()=>{confirming=null;onYes();rerender()},"yes"),
+    iconbtn("x","Cancel",()=>{confirming=null;rerender()},"no"));
+  return iconbtn("x",title,()=>{confirming=key;rerender()});
+}
+
+// ─── grid (movable + resizable boxes, others reflow) ───
+if(!window.GridStack){
+  document.body.insertAdjacentHTML("beforeend",'<p style="padding:20px;color:#F2603F">Could not load the layout library (gridstack). Check your internet connection and reload.</p>');
+  throw new Error("GridStack missing");
+}
+const LKEY="cowork-layout-v2";
+let layout={}; try{layout=JSON.parse(localStorage.getItem(LKEY)||"{}")||{}}catch{}
+const DEFAULT_LAYOUT={
+  "panel-ben":{x:0,y:0,w:3,h:15},
+  "panel-caden":{x:9,y:0,w:3,h:15},
+  "ideas":{x:3,y:11,w:6,h:5},
+};
+const boxes={}; let grid=null;
+function makeItem(id,def){
+  const L=layout[id]||def||{};
+  const attrs={class:"grid-stack-item","gs-id":id,id:"box-"+id.replace(":","-"),"gs-min-w":2,"gs-min-h":4,"gs-w":L.w||2,"gs-h":L.h||10};
+  if(L.x!=null){attrs["gs-x"]=L.x;attrs["gs-y"]=L.y}else attrs["gs-auto-position"]="true";
+  const person=id.startsWith("panel-");
+  return h("div",attrs,h("div",{class:"grid-stack-item-content"},
+    h("div",{class:"box"+(person?" person":"")},h("div",{class:"box-head"}),h("div",{class:"box-body"}))));
+}
+function saveLayout(){
+  if(!grid||grid.getColumn()!==12) return;
+  const out={};
+  grid.save(false).forEach(n=>{ if(n.id) out[n.id]={x:n.x,y:n.y,w:n.w,h:n.h}; });
+  layout={...layout,...out};
+  try{localStorage.setItem(LKEY,JSON.stringify(layout))}catch{}
+}
+function ensureGrid(){
+  if(grid) return;
+  const gridEl=$("#grid");
+  ["panel-ben","ideas","panel-caden"].forEach(id=>{ boxes[id]=makeItem(id,DEFAULT_LAYOUT[id]); gridEl.append(boxes[id]); });
+  grid=GridStack.init({
+    column:12, cellHeight:44, margin:5, float:false, animate:true,
+    draggable:{handle:".box-head"},
+    resizable:{handles:"se,s,e,sw,w"},
+    columnOpts:{breakpoints:[{w:820,c:1}]},
+  },gridEl);
+  grid.on("change added removed",saveLayout);
+  bindIdeas();
+}
+function syncColBoxes(){
+  const want=cols().map(c=>"col:"+c.id);
+  Object.keys(boxes).filter(k=>k.startsWith("col:")&&!want.includes(k)).forEach(k=>{
+    grid.removeWidget(boxes[k],true); delete boxes[k];
+  });
+  cols().forEach((c,i)=>{
+    const k="col:"+c.id; if(boxes[k]) return;
+    const def=i<3?{x:3+2*i,y:0,w:2,h:11}:null;
+    const it=makeItem(k,def); boxes[k]=it;
+    $("#grid").append(it); grid.makeWidget(it);
+    const box=it.querySelector(".box");
+    makeDrop(box,id=>dropToCol(id,c.id));
+    box.ondblclick=e=>{ if(!blockDbl(e)) startDraft("col:"+c.id); };
+  });
 }
 
 // ─── drag & drop of cards ───
 let dragId=null;
 function makeDrop(el,onDrop){
+  if(el._dd) return; el._dd=true;
   el.addEventListener("dragover",e=>{e.preventDefault();el.classList.add("over")});
   el.addEventListener("dragleave",e=>{ if(!el.contains(e.relatedTarget)) el.classList.remove("over") });
   el.addEventListener("drop",e=>{
@@ -342,166 +481,211 @@ function makeDrop(el,onDrop){
 }
 const dropToCol=(id,col)=>store.setTask(id,{idea:false,owner:null,suggestedFor:null,done:false,doneAt:null,col});
 
-// ─── inline "double-click to add" drafts ───
-let draft=null;            // {where:"col:<id>"|"panel:<who>"|"ideas", text:""}
-let rendering=false;
+// ─── inline add ("double-click to add") ───
 function addTask(extra){
   store.setTask(uid(),{title:"",col:null,owner:null,suggestedFor:null,done:false,idea:false,by:me,ts:Date.now(),...extra});
 }
 function commitDraft(){
-  const text=(draft?.text||"").trim(); const where=draft?.where;
+  const text=(draft?.text||"").trim(), where=draft?.where;
   draft=null;
   if(text&&where){
     if(where==="ideas") addTask({title:text,idea:true});
     else if(where.startsWith("col:")) addTask({title:text,col:where.slice(4)});
     else if(where.startsWith("panel:")){
       const w=where.slice(6);
-      if(w===me) addTask({title:text,owner:me});
-      else addTask({title:text,suggestedFor:w});
+      if(w===me) addTask({title:text,owner:me}); else addTask({title:text,suggestedFor:w});
     }
   }
-  renderBoard(); renderLists(); renderIdeas();
+  rerender();
 }
-function draftInput(where,placeholder){
+function draftInput(placeholder){
   const inp=h("input",{class:"draft",placeholder,maxlength:"140"});
   inp.value=draft.text;
   inp.oninput=()=>{draft.text=inp.value};
   inp.onkeydown=e=>{
     if(e.key==="Enter"){ e.preventDefault(); commitDraft(); }
-    if(e.key==="Escape"){ draft=null; renderBoard(); renderLists(); renderIdeas(); }
+    if(e.key==="Escape"){ draft=null; rerender(); }
   };
-  inp.onblur=()=>{ if(!rendering && draft && !inp.value.trim()){ draft=null; renderBoard(); renderLists(); renderIdeas(); } };
+  inp.onblur=()=>{ if(!rendering&&draft&&!inp.value.trim()){ draft=null; rerender(); } };
   return inp;
 }
-function startDraft(where){ draft={where,text:""}; renderBoard(); renderLists(); renderIdeas(); }
-function refocusDraft(){
+function startDraft(where){ draft={where,text:""}; rerender(); }
+function refocus(){
+  const r=document.querySelector("input.rename");
+  if(r){ r.focus(); if(!r._sel){r._sel=true;r.select();} return; }
   const i=document.querySelector("input.draft");
   if(i){ i.focus(); const n=i.value.length; i.setSelectionRange(n,n); }
 }
 const isDraft=w=>draft&&draft.where===w;
-const blockDbl=e=>e.target.closest(".card,.chip,button,input,.status,.menu,h2");
+const blockDbl=e=>e.target.closest(".card,.chip,button,input,.status,.menu,.box-head,.calpop");
 
 // ─── cards ───
 function card(id,t,ctx){
   const el=h("div",{class:"card"+(t.done?" done":""),draggable:"true"});
   el.addEventListener("dragstart",e=>{dragId=id;e.dataTransfer.setData("text/plain",id);el.classList.add("dragging")});
   el.addEventListener("dragend",()=>{dragId=null;el.classList.remove("dragging")});
-  el.append(h("div",{class:"t"},t.title));
+  const title=h("div",{class:"t",title:t.done?"":"Click to set a deadline"},t.title);
+  if(!t.done) title.onclick=()=>openDeadline(id,t,title);
+  el.append(title);
+
+  // deadline suggestion row
+  if(!t.done&&t.dueSuggest){
+    const s=t.dueSuggest, info=dueInfo(s.at);
+    if(t.owner===me&&s.by!==me){
+      el.append(h("div",{class:"sugg"},
+        h("span",{},`${PEOPLE[s.by]} suggests: ${info.text}`),h("span",{class:"sp"}),
+        h("button",{onclick:()=>store.setTask(id,{due:s.at,dueSuggest:null})},"accept"),
+        h("button",{onclick:()=>store.setTask(id,{dueSuggest:null})},"decline")));
+    }else if(s.by===me){
+      el.append(h("div",{class:"sugg mute"},
+        h("span",{},`You suggested: ${info.text}`),h("span",{class:"sp"}),
+        h("button",{onclick:()=>store.setTask(id,{dueSuggest:null})},"cancel")));
+    }
+  }
+
   const meta=h("div",{class:"meta"});
+  if(!t.done){
+    if(t.due){
+      const d=dueInfo(t.due);
+      meta.append(h("button",{class:"due "+d.cls,title:"Change deadline",onclick:e=>openDeadline(id,t,e.currentTarget)},h("span",{class:"dd"}),d.text));
+    }else{
+      meta.append(h("button",{class:"iconbtn",style:"width:24px;height:24px",title:t.owner&&t.owner!==me?"Suggest a deadline":"Set a deadline",onclick:e=>openDeadline(id,t,e.currentTarget)},icon("cal",14)));
+    }
+  }
   if(t.by&&t.by!==t.owner) meta.append(h("span",{},`by ${PEOPLE[t.by]||t.by}`));
   if(ctx!=="board"){
     const c=cols().find(c=>c.id===t.col);
     if(c) meta.append(h("span",{class:"tag"},c.name));
   }
-  if(t.done&&t.doneAt) meta.append(h("span",{class:"doneat"},`✓ done ${ago(t.doneAt)}`));
+  if(t.done&&t.doneAt) meta.append(h("span",{class:"doneat"},`done ${ago(t.doneAt)}`));
   meta.append(h("span",{class:"sp"}));
-  if(ctx==="board") meta.append(h("button",{title:"Take this",onclick:()=>store.setTask(id,{owner:me,suggestedFor:null})},"take"));
+  if(ctx==="board") meta.append(h("button",{class:"sm",title:"Take this",onclick:()=>store.setTask(id,{owner:me,suggestedFor:null})},"take"));
   if(ctx==="mine"){
-    meta.append(h("button",{onclick:()=>store.setTask(id,t.done?{done:false,doneAt:null}:{done:true,doneAt:Date.now()})},t.done?"undo":"done"));
-    meta.append(h("button",{onclick:()=>store.setTask(id,{owner:null,done:false,doneAt:null})},"release"));
+    meta.append(h("button",{class:"sm",onclick:()=>store.setTask(id,t.done?{done:false,doneAt:null}:{done:true,doneAt:Date.now()})},t.done?"undo":"done"));
+    meta.append(h("button",{class:"sm",onclick:()=>store.setTask(id,{owner:null,done:false,doneAt:null})},"release"));
   }
   if(ctx==="suggested-me"){
-    meta.append(h("button",{class:"primary",onclick:()=>store.setTask(id,{owner:me,suggestedFor:null})},"accept"));
-    meta.append(h("button",{onclick:()=>store.setTask(id,{suggestedFor:null})},"decline"));
+    meta.append(h("button",{class:"sm primary",onclick:()=>store.setTask(id,{owner:me,suggestedFor:null})},"accept"));
+    meta.append(h("button",{class:"sm",onclick:()=>store.setTask(id,{suggestedFor:null})},"decline"));
   }
-  meta.append(h("button",{title:"Delete",onclick:()=>{ if(confirm("Delete this task?")) store.delTask(id) }},"✕"));
+  meta.append(confirmControl("task:"+id,"Delete task",()=>store.delTask(id)));
   el.append(meta);
   return el;
 }
 
-// ─── render: board ───
+// ─── render: columns ───
+function commitRename(){
+  if(!renaming) return;
+  const text=renaming.text.trim(), id=renaming.id;
+  renaming=null;
+  if(text) store.setCols(cols().map(x=>x.id===id?{...x,name:text}:x));
+  renderBoard();
+}
 function renderBoard(){
+  if(!grid) return;
   rendering=true;
-  const wrap=$("#cols"); wrap.replaceChildren();
-  const cs=cols(); const ids=new Set(cs.map(c=>c.id));
+  syncColBoxes();
+  const cs=cols(), ids=new Set(cs.map(c=>c.id));
   const tasks=Object.entries(state.tasks).filter(([,t])=>!t.idea).sort((a,b)=>(a[1].ts||0)-(b[1].ts||0));
   cs.forEach((c,i)=>{
+    const it=boxes["col:"+c.id]; if(!it) return;
+    const head=it.querySelector(".box-head"), body=it.querySelector(".box-body");
     const here=tasks.filter(([,t])=>!t.owner&&!t.suggestedFor&&((t.col===c.id)||(i===0&&!ids.has(t.col))));
-    const col=h("div",{class:"col","data-id":c.id});
-    col.append(h("h2",{},
-      h("span",{class:"name"},c.name),
-      h("span",{class:"n"},String(here.length)),
-      h("button",{class:"iconbtn",title:"Add task",onclick:()=>startDraft("col:"+c.id)},"+"),
-      h("button",{class:"iconbtn",title:"Rename column",onclick:()=>{
-        const n=prompt("Rename column",c.name); if(n&&n.trim()) store.setCols(cs.map(x=>x.id===c.id?{...x,name:n.trim()}:x));
-      }},"✎"),
-      here.length===0&&cs.length>1?h("button",{class:"iconbtn",title:"Delete empty column",onclick:()=>{
-        if(confirm(`Delete column "${c.name}"?`)) store.setCols(cs.filter(x=>x.id!==c.id));
-      }},"×"):null
-    ));
-    if(isDraft("col:"+c.id)) col.append(draftInput("col:"+c.id,"New task, press Enter…"));
-    if(!here.length&&!isDraft("col:"+c.id)) col.append(h("div",{class:"hint"},"Double-click to add a task"));
-    here.forEach(([id,t])=>col.append(card(id,t,"board")));
-    makeDrop(col,id=>dropToCol(id,c.id));
-    col.ondblclick=e=>{ if(!blockDbl(e)) startDraft("col:"+c.id) };
-    wrap.append(col);
-    if(i<cs.length-1) wrap.append(divider("col",{a:c.id,b:cs[i+1].id}));
+    head.replaceChildren();
+    if(renaming&&renaming.id===c.id){
+      const inp=h("input",{class:"rename",maxlength:"40"});
+      inp.value=renaming.text;
+      inp.oninput=()=>{renaming.text=inp.value};
+      inp.onkeydown=e=>{ if(e.key==="Enter"){e.preventDefault();commitRename()} if(e.key==="Escape"){renaming=null;renderBoard()} };
+      inp.onblur=()=>{ if(!rendering) commitRename(); };
+      head.append(inp);
+    }else head.append(h("span",{class:"name"},c.name));
+    head.append(...[h("span",{class:"n"},String(here.length)),
+      iconbtn("plus","Add task",()=>startDraft("col:"+c.id)),
+      iconbtn("pencil","Rename column",()=>{renaming={id:c.id,text:c.name};renderBoard()}),
+      here.length===0&&cs.length>1?confirmControl("col:"+c.id,"Delete empty column",()=>store.setCols(cs.filter(x=>x.id!==c.id))):null].filter(Boolean));
+    body.replaceChildren();
+    if(isDraft("col:"+c.id)) body.append(draftInput("New task, press Enter"));
+    if(!here.length&&!isDraft("col:"+c.id)) body.append(h("div",{class:"hint"},"Double-click to add a task"));
+    here.forEach(([id,t])=>body.append(card(id,t,"board")));
   });
-  wrap.append(h("button",{class:"addcol",title:"Add column",onclick:()=>{
-    const n=prompt("New column name"); if(n&&n.trim()) store.setCols([...cs,{id:uid(),name:n.trim()}]);
-  }},"+"));
-  applySizes();
-  rendering=false; refocusDraft();
+  rendering=false; refocus();
 }
 
-// ─── render: ideas strip ───
+// ─── render: ideas ───
+function bindIdeas(){
+  const box=boxes["ideas"].querySelector(".box");
+  box.ondblclick=e=>{ if(!blockDbl(e)) startDraft("ideas"); };
+  makeDrop(box,id=>{ /* dropping onto ideas turns a task back into an idea */
+    store.setTask(id,{idea:true,owner:null,suggestedFor:null,done:false,doneAt:null,due:null,dueSuggest:null});
+  });
+}
 function renderIdeas(){
+  if(!grid) return;
   rendering=true;
-  const box=$("#ideas"); box.replaceChildren();
+  const it=boxes["ideas"], head=it.querySelector(".box-head"), body=it.querySelector(".box-body");
   const ideas=Object.entries(state.tasks).filter(([,t])=>t.idea).sort((a,b)=>(a[1].ts||0)-(b[1].ts||0));
-  box.append(h("h3",{},"💡 Ideas",h("button",{class:"iconbtn",title:"Add idea",onclick:()=>startDraft("ideas")},"+")));
-  if(isDraft("ideas")) box.append(draftInput("ideas","Quick idea, press Enter…"));
-  if(!ideas.length&&!isDraft("ideas")) box.append(h("div",{class:"hint"},"Double-click here to jot down an idea. Drag it into a column to turn it into a task."));
+  head.replaceChildren(h("span",{class:"name"},"Ideas"),h("span",{class:"n"},String(ideas.length)),
+    iconbtn("plus","Add idea",()=>startDraft("ideas")));
+  body.replaceChildren();
+  if(isDraft("ideas")) body.append(draftInput("Quick idea, press Enter"));
+  if(!ideas.length&&!isDraft("ideas")) body.append(h("div",{class:"hint"},"Double-click to jot down an idea. Drag it into a column to make it a task."));
   const chips=h("div",{class:"chips"});
   ideas.forEach(([id,t])=>{
     const c=h("div",{class:"chip",draggable:"true"},
-      h("span",{},t.title),
-      t.by?h("span",{class:"hint",style:"padding:0"},PEOPLE[t.by]||""):null,
-      h("button",{class:"x",title:"Delete",onclick:()=>store.delTask(id)},"✕"));
+      h("span",{},t.title), t.by?h("span",{class:"by"},PEOPLE[t.by]||""):null,
+      confirmControl("idea:"+id,"Delete idea",()=>store.delTask(id)));
     c.addEventListener("dragstart",e=>{dragId=id;e.dataTransfer.setData("text/plain",id)});
     c.addEventListener("dragend",()=>{dragId=null});
     chips.append(c);
   });
-  box.append(chips);
-  box.ondblclick=e=>{ if(!blockDbl(e)) startDraft("ideas") };
-  rendering=false; refocusDraft();
+  body.append(chips);
+  rendering=false; refocus();
 }
 
-// ─── render: side panels ───
+// ─── render: people panels ───
+let customColor="teal";
 function buildPanel(who){
-  const p=$("#panel-"+who); p.replaceChildren();
-  p.append(
-    h("div",{class:"who"},
-      h("span",{class:"dot",id:`dot-${who}`}), PEOPLE[who],
-      who===me?h("span",{class:"tag"},"you"):null,
-      h("button",{class:"iconbtn plus",title:who===me?"Add a task for yourself":`Suggest a task to ${PEOPLE[who]}`,onclick:()=>startDraft("panel:"+who)},"+")),
-    h("div",{class:"seen",id:`seen-${who}`}),
-  );
+  const item=boxes["panel-"+who], box=item.querySelector(".box");
   const mine=who===me;
+  const head=h("div",{class:"box-head"},
+    h("div",{class:"who"},h("span",{class:"dot",id:`dot-${who}`}),PEOPLE[who],mine?h("span",{class:"tag"},"you"):null),
+    iconbtn("plus",mine?"Add a task for yourself":`Suggest a task to ${PEOPLE[who]}`,()=>startDraft("panel:"+who)));
+  const seen=h("div",{class:"seen",id:`seen-${who}`});
   const sb=h(mine?"button":"div",{class:"status"+(mine?" mine":""),id:`status-${who}`},
     h("span",{class:"sdot"}),
     h("div",{class:"sbody"},h("div",{class:"stext"}),h("div",{class:"scap"})),
     mine?h("span",{class:"chev"},"▾"):null);
   const wrap=h("div",{class:"statuswrap"},sb);
   if(mine){
+    const close=()=>{menu.classList.remove("open");item.classList.remove("raise")};
     const menu=h("div",{class:"menu",id:"statusMenu"},
-      STATUSES.map(s=>h("button",{class:"opt",onclick:()=>{setStatus(s.k);menu.classList.remove("open")}},
-        h("span",{class:"sdot "+s.color}),s.label)));
-    const inp=h("input",{placeholder:"Custom status, press Enter…",maxlength:"80"});
-    inp.onkeydown=e=>{ if(e.key==="Enter"&&inp.value.trim()){setStatus("custom",inp.value.trim());inp.value="";menu.classList.remove("open")} };
-    menu.append(h("div",{class:"custom"},inp));
-    sb.onclick=e=>{e.stopPropagation();menu.classList.toggle("open")};
+      STATUSES.map(s=>h("button",{class:"opt",onclick:()=>{setStatus(s.k);close()}},h("span",{class:"sdot "+s.color}),s.label)));
+    const sw=h("div",{class:"swatches"});
+    const cdot=h("button",{class:"cdot",title:"Pick a color"},h("span",{class:"sdot "+customColor}));
+    const paintSwatches=()=>{
+      sw.replaceChildren(...SWATCHES.map(c=>h("button",{class:"sdot "+c+(c===customColor?" sel":""),title:c,onclick:()=>{
+        customColor=c; cdot.firstChild.className="sdot "+c; paintSwatches(); sw.classList.remove("open");
+      }})));
+    };
+    paintSwatches();
+    cdot.onclick=()=>sw.classList.toggle("open");
+    const inp=h("input",{placeholder:"Custom status, press Enter",maxlength:"80"});
+    inp.onkeydown=e=>{ if(e.key==="Enter"&&inp.value.trim()){setStatus("custom",inp.value.trim(),customColor);inp.value="";close()} };
+    menu.append(h("div",{class:"custom"},cdot,inp),sw);
+    sb.onclick=e=>{e.stopPropagation();const open=!menu.classList.contains("open");menu.classList.toggle("open",open);item.classList.toggle("raise",open)};
+    menu.onclick=e=>e.stopPropagation();
     wrap.append(menu);
+    addEventListener("click",()=>close());
   }
-  p.append(wrap, h("div",{id:`lists-${who}`}));
-  makeDrop(p,id=>{
+  const body=h("div",{class:"box-body",id:`lists-${who}`});
+  box.replaceChildren(head,seen,wrap,body);
+  makeDrop(box,id=>{
     if(who===me) store.setTask(id,{idea:false,owner:me,suggestedFor:null});
     else store.setTask(id,{idea:false,owner:null,suggestedFor:who,by:me});
   });
-  p.ondblclick=e=>{ if(!blockDbl(e)) startDraft("panel:"+who) };
+  box.ondblclick=e=>{ if(!blockDbl(e)) startDraft("panel:"+who); };
 }
-addEventListener("click",e=>{ if(!e.target.closest(".menu")) $("#statusMenu")?.classList.remove("open") });
-
 function renderPresence(){
   for(const who of Object.keys(PEOPLE)){
     const pr=state.presence[who]||{};
@@ -510,15 +694,15 @@ function renderPresence(){
     const seen=$("#seen-"+who); if(seen) seen.textContent=on?"Online now":`Last online ${ago(pr.lastSeen)}`;
     const box=$("#status-"+who); if(!box) continue;
     const def=STATUSES.find(s=>s.k===pr.statusKey);
-    const color=def?def.color:(pr.statusKey==="custom"?"teal":"gray");
+    const color=def?def.color:(pr.statusKey==="custom"?(pr.statusColor||"teal"):"gray");
     const mode=def?def.mode:"since";
     box.querySelector(".sdot").className="sdot "+color;
     box.querySelector(".stext").textContent=pr.statusText||(who===me?"Set your status":"No status");
     box.querySelector(".scap").textContent=pr.statusText?(mode==="since"?`since ${ago(pr.since)}`:ago(pr.since)):(who===me?"Click to choose":"");
   }
 }
-
 function renderLists(){
+  if(!grid) return;
   rendering=true;
   const tasks=Object.entries(state.tasks).filter(([,t])=>!t.idea).sort((a,b)=>(a[1].ts||0)-(b[1].ts||0));
   for(const who of Object.keys(PEOPLE)){
@@ -527,34 +711,44 @@ function renderLists(){
     const done=tasks.filter(([,t])=>t.owner===who&&t.done).sort((a,b)=>(b[1].doneAt||0)-(a[1].doneAt||0));
     const sugg=tasks.filter(([,t])=>!t.owner&&t.suggestedFor===who);
     const d="panel:"+who;
-    box.append(h("h3",{},`Working on (${working.length})`));
-    if(isDraft(d)) box.append(draftInput(d,who===me?"New task for you, Enter…":`Suggest to ${PEOPLE[who]}, Enter…`));
+    box.append(h("h3",{class:"sec"},`Working on (${working.length})`));
+    if(isDraft(d)) box.append(draftInput(who===me?"New task for you, Enter":`Suggest to ${PEOPLE[who]}, Enter`));
     if(!working.length&&!isDraft(d)) box.append(h("div",{class:"hint"},who===me?"Double-click to add, or drag a card here.":`Double-click to suggest something to ${PEOPLE[who]}.`));
     working.forEach(([id,t])=>box.append(card(id,t,who===me?"mine":"panel")));
     if(sugg.length){
-      box.append(h("h3",{},`Suggested for ${who===me?"you":PEOPLE[who]} (${sugg.length})`));
+      box.append(h("h3",{class:"sec"},`Suggested for ${who===me?"you":PEOPLE[who]} (${sugg.length})`));
       sugg.forEach(([id,t])=>box.append(card(id,t,who===me?"suggested-me":"panel")));
     }
     if(done.length){
-      box.append(h("h3",{},`Done (${done.length})`));
+      box.append(h("h3",{class:"sec"},`Done (${done.length})`));
       done.forEach(([id,t])=>box.append(card(id,t,who===me?"mine":"panel")));
     }
   }
-  rendering=false; refocusDraft();
+  rendering=false; refocus();
 }
+
+// ─── header / footer actions ───
+$("#addCol").onclick=()=>{
+  const id=uid();
+  store.setCols([...cols(),{id,name:"New column"}]);
+  renaming={id,text:"New column"}; renderBoard();
+};
+$("#resetLayout").onclick=()=>{ try{localStorage.removeItem(LKEY)}catch{} location.reload(); };
 
 // ─── tour ───
 let tourI=0, tourSteps=[];
 function buildTour(){
+  const o=PEOPLE[other()];
   tourSteps=[
-    {t:"Welcome 👋",d:"A 30-second tour of your shared board. You can replay it anytime with the ? button in the top right.",sel:null},
-    {t:"Set your status",d:"Click your status box, then pick one: Online (green), vibe coding (blue), waiting for upload (blue), uploading (red), uploaded or away (gray). You can type a custom one too.",sel:"#status-"+me},
-    {t:"Add tasks fast",d:"Double-click any column, type, press Enter. Or hit the + next to its name. Esc cancels.",sel:"#cols"},
-    {t:"Claim, release, suggest",d:"Drag a card onto your panel to claim it, back onto a column to release it, or onto "+PEOPLE[other()]+"'s panel to suggest it. On a phone, use the buttons on each card.",sel:"#panel-"+other()},
-    {t:"Suggest straight to "+PEOPLE[other()],d:"Double-click "+PEOPLE[other()]+"'s panel and type. They'll see it under Suggested for them and can accept or decline.",sel:"#panel-"+other()},
-    {t:"Ideas",d:"Double-click the Ideas strip to jot down anything. Drag an idea into a column when it becomes a real task.",sel:"#ideas"},
-    {t:"Columns & sizes",d:"Drag the thin dividers to resize columns and side panels. ✎ renames a column, the big + on the right adds one.",sel:"#cols"},
-    {t:"Done is timestamped",d:"Press done on your own task and it moves to Done with the time you finished it. That's it. Have fun!",sel:"#panel-"+me},
+    {t:"Welcome",d:"A quick tour of your shared board. Replay it anytime with the ? button in the top right.",sel:null},
+    {t:"Set your status",d:"Click your status box and pick one. For a custom status, click the colored dot first to choose from 8 colors, then type and press Enter.",sel:"#box-panel-"+me},
+    {t:"Add tasks fast",d:"Double-click inside any column, type, and press Enter. The + next to a column name does the same. Esc cancels.",sel:"#box-col-"+cols()[0].id},
+    {t:"Claim, release, suggest",d:`Drag a card onto your box to claim it, back onto a column to release it, or onto ${o}'s box to suggest it. On a phone, use the buttons on each card.`,sel:"#box-panel-"+other()},
+    {t:`Suggest straight to ${o}`,d:`Double-click ${o}'s box and type. They'll see it under "Suggested for" and can accept or decline.`,sel:"#box-panel-"+other()},
+    {t:"Deadlines",d:`Click a task and pick a day on the calendar. It shows "due in 3 days", turns orange on the day and red when overdue. On ${o}'s tasks you suggest a deadline, and they accept or decline.`,sel:null},
+    {t:"Arrange the board",d:"Drag a box by its header to move it and drag its edges or corner to resize it. The other boxes make room. Long lists scroll inside their box. Reset layout is in the footer.",sel:null},
+    {t:"Ideas",d:"Double-click the Ideas box to jot something down. Drag an idea into a column when it becomes a real task.",sel:"#box-ideas"},
+    {t:"Done is timestamped",d:"Press done on your own task and it moves to Done with the time you finished it. That's the tour.",sel:"#box-panel-"+me},
   ];
 }
 function showTour(){
@@ -570,7 +764,7 @@ function showTour(){
 function endTour(){
   $$(".tour-hl").forEach(e=>e.classList.remove("tour-hl"));
   $("#tour").classList.remove("show");
-  try{localStorage.setItem("cowork-tour-seen","1")}catch{}
+  try{localStorage.setItem("cowork-tour-seen-2","1")}catch{}
 }
 function startTour(){ buildTour(); tourI=0; showTour(); }
 $("#tourNext").onclick=()=>{ if(tourI>=tourSteps.length-1) endTour(); else {tourI++;showTour()} };
@@ -583,26 +777,25 @@ let started=false, lastSig="";
 function init(){
   if(!me){ pickIdentity(); return; }
   $("#meName").textContent=PEOPLE[me];
-  buildPanel("caden"); buildPanel("ben");
-  // dividers for the side panels
-  const dc=$("#div-caden"), db=$("#div-ben");
-  dc.onpointerdown=e=>startDrag(e,"panel",{who:"caden",dir:1},dc);
-  db.onpointerdown=e=>startDrag(e,"panel",{who:"ben",dir:-1},db);
+  ensureGrid();
+  buildPanel("ben"); buildPanel("caden");
   if(!started){
     started=true;
     store.onChange(s=>{
       state=s;
       const sig=JSON.stringify([s.tasks,s.cols]);
-      if(sig!==lastSig){ lastSig=sig; renderBoard(); renderLists(); renderIdeas(); }
+      if(sig!==lastSig){ lastSig=sig; rerender(); }
       renderPresence();
     });
     setInterval(heartbeat,HEARTBEAT);
-    setInterval(()=>{ renderPresence(); if(!draft){ renderLists(); } },20_000);
+    setInterval(()=>{
+      renderPresence();
+      if(!draft&&!renaming&&!confirming&&!calEl) rerender();
+    },30_000);
     document.addEventListener("visibilitychange",heartbeat);
   }
-  lastSig=""; renderBoard(); renderLists(); renderIdeas(); renderPresence(); heartbeat();
-  applySizes();
-  if(!localStorage.getItem("cowork-tour-seen")) startTour();
+  lastSig=""; rerender(); renderPresence(); heartbeat();
+  if(!localStorage.getItem("cowork-tour-seen-2")) startTour();
 }
 init();
 </script>
