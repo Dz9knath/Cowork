@@ -35,18 +35,15 @@
   .ic{display:inline-flex;vertical-align:middle}
 
   /* header: light band so the logo sits on its own mist background */
-  header{display:flex;align-items:center;gap:12px;padding:10px 20px;background:var(--mist);color:var(--deep);border-bottom:1px solid rgba(11,60,73,.12)}
-  header button{color:var(--deep);border-color:rgba(11,60,73,.28)}
-  header button:hover{border-color:var(--coral)}
+  header{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--box);border-bottom:1px solid var(--line)}
   .brand{display:flex;align-items:center;gap:12px}
   #logo{display:none;height:38px}
-  #wordmark{font-size:1.4rem;font-weight:700;letter-spacing:-.4px;color:var(--deep)}
+  #wordmark{font-size:1.4rem;font-weight:700;letter-spacing:-.4px;color:var(--mist)}
   #wordmark b{color:var(--coral);margin:0 .12em}
-  .brand .sub{color:#4d7580;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border-left:1px solid rgba(11,60,73,.2);padding-left:12px}
+  .brand .sub{color:var(--muted);font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;border-left:1px solid var(--line2);padding-left:12px}
   .spacer{flex:1}
-  #mode{font-size:.78rem;font-weight:600;padding:3px 10px;border-radius:99px;background:#F5E3B8;color:#7a5200}
-  #mode.live{background:#D3F1E2;color:#12703f}
-  #help{width:32px;height:32px;border-radius:50%;padding:0;font-weight:700}
+  #mode{font-size:.78rem;font-weight:600;padding:3px 10px;border-radius:99px;background:rgba(233,169,42,.14);color:var(--sun);border:1px solid rgba(233,169,42,.3)}
+  #mode.live{background:rgba(53,208,127,.12);color:var(--green);border-color:rgba(53,208,127,.3)}
 
   main{padding:10px 12px 20px}
   .grid-stack>.grid-stack-item>.grid-stack-item-content{overflow:visible!important}
@@ -123,9 +120,29 @@
   .sugg .sp{flex:1}
   .sugg button{padding:0 8px;font-size:.78rem}
 
-  .chips{display:flex;flex-wrap:wrap;gap:8px;padding-top:2px}
-  .chip{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--sun);border-radius:var(--r2);padding:3px 4px 3px 11px;cursor:grab;font-size:.92rem}
-  .chip .by{color:var(--muted);font-size:.75rem}
+  .notes{list-style:none;margin:0;padding:0}
+  .note{display:flex;align-items:flex-start;gap:10px;padding:5px 4px 5px 2px;border-radius:var(--r2);cursor:pointer;user-select:none}
+  .note:hover{background:rgba(255,255,255,.04)}
+  .note .bul{width:6px;height:6px;border-radius:50%;background:var(--sun);flex:none;margin-top:.55em}
+  .note .txt{flex:1;min-width:0;word-break:break-word;font-size:.95rem}
+  .note .by{color:var(--muted);font-size:.78rem;white-space:nowrap;margin-top:.15em}
+  .note .del{opacity:0;transition:opacity .12s}
+  .note:hover .del,.note .confirm{opacity:1}
+  .note.converting{opacity:.45}
+  .addtile{height:100%;display:flex;align-items:center;justify-content:center}
+  .addtile button{width:100%;height:100%;border:1px dashed var(--line2);border-radius:var(--r);background:rgba(11,60,73,.45);color:var(--muted);font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
+  .addtile button:hover{border-color:var(--sun);color:var(--sun)}
+  .pending{margin:0 12px 8px;font-size:.8rem;color:var(--muted);display:flex;gap:8px;align-items:center;background:rgba(233,169,42,.08);border:1px solid rgba(233,169,42,.25);border-radius:var(--r2);padding:4px 6px 4px 10px}
+  .pending .pt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pending b{color:var(--sun);font-weight:600}
+  .pending button{padding:0 7px;font-size:.75rem;margin-left:auto}
+  .modal{position:fixed;inset:0;z-index:180;background:rgba(4,22,28,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+  .modal .dlg{width:min(420px,100%);background:#0d4453;border:1px solid var(--line2);border-top:3px solid var(--coral);border-radius:var(--r);padding:18px;box-shadow:0 22px 50px rgba(0,0,0,.55)}
+  .modal h4{margin:0 0 4px;font-size:1.05rem}
+  .modal .when{color:var(--muted);font-size:.82rem;margin-bottom:12px}
+  .modal .msg{font-size:1.1rem;line-height:1.45;margin:0 0 16px;word-break:break-word}
+  .modal .row{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+  .modal .count{color:var(--muted);font-size:.8rem;margin-right:auto}
 
   /* calendar popover */
   .calpop{position:fixed;z-index:100;width:268px;background:#0d4453;border:1px solid var(--line2);border-radius:var(--r);padding:12px;box-shadow:0 18px 44px rgba(0,0,0,.55)}
@@ -162,14 +179,12 @@
 
 <header>
   <div class="brand">
-    <img id="logo" src="logo-lockup.png" alt="Reel 2 Real">
+    <img id="logo" src="logo-lockup-dark.png" alt="Reel 2 Real">
     <span id="wordmark">Reel<b>2</b>Real</span>
     <span class="sub">Cowork</span>
   </div>
   <div class="spacer"></div>
-  <button id="addCol">+ Column</button>
   <span id="mode">local mode</span>
-  <button id="help" title="Show the tour again">?</button>
 </header>
 
 <main><div class="grid-stack" id="grid"></div></main>
@@ -264,7 +279,8 @@ const $$=s=>[...document.querySelectorAll(s)];
 $("#mode").textContent = store.live ? "live sync" : "local mode (no Firebase config)";
 $("#mode").classList.toggle("live", store.live);
 const logo=$("#logo");
-logo.onload=()=>{logo.style.display="block";$("#wordmark").hidden=true};
+const showLogo=()=>{ if(logo.naturalWidth){logo.style.display="block";$("#wordmark").hidden=true} };
+logo.onload=showLogo; if(logo.complete) showLogo();
 
 // ─── helpers ───
 function h(tag, props={}, ...kids){
@@ -292,6 +308,7 @@ const ICONS={
   pencil:'<path d="M4 20h4L19 9l-4-4L4 16v4z"/>',
   x:'<path d="M6 6l12 12M18 6L6 18"/>',
   check:'<path d="M5 13l4 4L19 7"/>',
+  msg:'<path d="M4 5h16v11H9l-5 4V5z"/>',
   cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
 };
 function icon(n,size=15){
@@ -415,19 +432,23 @@ if(!window.GridStack){
   document.body.insertAdjacentHTML("beforeend",'<p style="padding:20px;color:#F2603F">Could not load the layout library (gridstack). Check your internet connection and reload.</p>');
   throw new Error("GridStack missing");
 }
-const LKEY="cowork-layout-v2";
+const LKEY="cowork-layout-v3";
 let layout={}; try{layout=JSON.parse(localStorage.getItem(LKEY)||"{}")||{}}catch{}
 const DEFAULT_LAYOUT={
-  "panel-ben":{x:0,y:0,w:3,h:15},
-  "panel-caden":{x:9,y:0,w:3,h:15},
+  "panel-caden":{x:0,y:0,w:3,h:15},
+  "panel-ben":{x:9,y:0,w:3,h:15},
   "ideas":{x:3,y:11,w:6,h:5},
+  "addcol":{x:7,y:9,w:2,h:2},
 };
 const boxes={}; let grid=null;
 function makeItem(id,def){
   const L=layout[id]||def||{};
-  const attrs={class:"grid-stack-item","gs-id":id,id:"box-"+id.replace(":","-"),"gs-min-w":2,"gs-min-h":4,"gs-w":L.w||2,"gs-h":L.h||10};
+  const small=id==="addcol";
+  const attrs={class:"grid-stack-item","gs-id":id,id:"box-"+id.replace(":","-"),"gs-min-w":small?1:2,"gs-min-h":small?1:4,"gs-w":L.w||2,"gs-h":L.h||10};
   if(L.x!=null){attrs["gs-x"]=L.x;attrs["gs-y"]=L.y}else attrs["gs-auto-position"]="true";
   const person=id.startsWith("panel-");
+  if(small) return h("div",attrs,h("div",{class:"grid-stack-item-content"},
+    h("div",{class:"addtile"},h("button",{title:"Add a column (drag the tile to move it)",onclick:addColumn},icon("plus",16),"Column"))));
   return h("div",attrs,h("div",{class:"grid-stack-item-content"},
     h("div",{class:"box"+(person?" person":"")},h("div",{class:"box-head"}),h("div",{class:"box-body"}))));
 }
@@ -441,10 +462,10 @@ function saveLayout(){
 function ensureGrid(){
   if(grid) return;
   const gridEl=$("#grid");
-  ["panel-ben","ideas","panel-caden"].forEach(id=>{ boxes[id]=makeItem(id,DEFAULT_LAYOUT[id]); gridEl.append(boxes[id]); });
+  ["panel-caden","ideas","panel-ben","addcol"].forEach(id=>{ boxes[id]=makeItem(id,DEFAULT_LAYOUT[id]); gridEl.append(boxes[id]); });
   grid=GridStack.init({
     column:12, cellHeight:44, margin:5, float:false, animate:true,
-    draggable:{handle:".box-head"},
+    draggable:{handle:".box-head, .addtile"},
     resizable:{handles:"se,s,e,sw,w"},
     columnOpts:{breakpoints:[{w:820,c:1}]},
   },gridEl);
@@ -458,7 +479,7 @@ function syncColBoxes(){
   });
   cols().forEach((c,i)=>{
     const k="col:"+c.id; if(boxes[k]) return;
-    const def=i<3?{x:3+2*i,y:0,w:2,h:11}:null;
+    const def=i<3?{x:3+2*i,y:0,w:2,h:i===2?9:11}:null;
     const it=makeItem(k,def); boxes[k]=it;
     $("#grid").append(it); grid.makeWidget(it);
     const box=it.querySelector(".box");
@@ -486,8 +507,9 @@ function addTask(extra){
   store.setTask(uid(),{title:"",col:null,owner:null,suggestedFor:null,done:false,idea:false,by:me,ts:Date.now(),...extra});
 }
 function commitDraft(){
-  const text=(draft?.text||"").trim(), where=draft?.where;
+  const text=(draft?.text||"").trim(), where=draft?.where, fromNote=draft?.fromNote;
   draft=null;
+  if(text&&fromNote) store.delTask(fromNote);
   if(text&&where){
     if(where==="ideas") addTask({title:text,idea:true});
     else if(where.startsWith("col:")) addTask({title:text,col:where.slice(4)});
@@ -517,7 +539,7 @@ function refocus(){
   if(i){ i.focus(); const n=i.value.length; i.setSelectionRange(n,n); }
 }
 const isDraft=w=>draft&&draft.where===w;
-const blockDbl=e=>e.target.closest(".card,.chip,button,input,.status,.menu,.box-head,.calpop");
+const blockDbl=e=>e.target.closest(".card,.note,button,input,.status,.menu,.box-head,.calpop");
 
 // ─── cards ───
 function card(id,t,ctx){
@@ -620,26 +642,34 @@ function bindIdeas(){
     store.setTask(id,{idea:true,owner:null,suggestedFor:null,done:false,doneAt:null,due:null,dueSuggest:null});
   });
 }
+function noteToTask(id,t){
+  const first=cols()[0]; if(!first) return;
+  draft={where:"col:"+first.id,text:t.title,fromNote:id};
+  rerender();
+  const i=document.querySelector("input.draft"); if(i){ i.focus(); i.select(); }
+}
 function renderIdeas(){
   if(!grid) return;
   rendering=true;
   const it=boxes["ideas"], head=it.querySelector(".box-head"), body=it.querySelector(".box-body");
-  const ideas=Object.entries(state.tasks).filter(([,t])=>t.idea).sort((a,b)=>(a[1].ts||0)-(b[1].ts||0));
-  head.replaceChildren(h("span",{class:"name"},"Ideas"),h("span",{class:"n"},String(ideas.length)),
-    iconbtn("plus","Add idea",()=>startDraft("ideas")));
+  const notes=Object.entries(state.tasks).filter(([,t])=>t.idea).sort((a,b)=>(a[1].ts||0)-(b[1].ts||0));
+  head.replaceChildren(h("span",{class:"name"},"Notes"),h("span",{class:"n"},String(notes.length)),
+    iconbtn("plus","Add a note",()=>startDraft("ideas")));
   body.replaceChildren();
-  if(isDraft("ideas")) body.append(draftInput("Quick idea, press Enter"));
-  if(!ideas.length&&!isDraft("ideas")) body.append(h("div",{class:"hint"},"Double-click to jot down an idea. Drag it into a column to make it a task."));
-  const chips=h("div",{class:"chips"});
-  ideas.forEach(([id,t])=>{
-    const c=h("div",{class:"chip",draggable:"true"},
-      h("span",{},t.title), t.by?h("span",{class:"by"},PEOPLE[t.by]||""):null,
-      confirmControl("idea:"+id,"Delete idea",()=>store.delTask(id)));
-    c.addEventListener("dragstart",e=>{dragId=id;e.dataTransfer.setData("text/plain",id)});
-    c.addEventListener("dragend",()=>{dragId=null});
-    chips.append(c);
+  if(!notes.length&&!isDraft("ideas")) body.append(h("div",{class:"hint"},"Double-click empty space to write a note. Double-click a note to turn it into a task."));
+  const ul=h("ul",{class:"notes"});
+  notes.forEach(([id,t])=>{
+    const li=h("li",{class:"note"+(draft&&draft.fromNote===id?" converting":""),draggable:"true",title:"Double-click to turn into a task"},
+      h("span",{class:"bul"}), h("span",{class:"txt"},t.title),
+      h("span",{class:"by"},"— "+(PEOPLE[t.by]||t.by||"")),
+      h("span",{class:"del"},confirmControl("idea:"+id,"Delete note",()=>store.delTask(id))));
+    li.ondblclick=e=>{ e.stopPropagation(); if(!e.target.closest("button")) noteToTask(id,t); };
+    li.addEventListener("dragstart",e=>{dragId=id;e.dataTransfer.setData("text/plain",id)});
+    li.addEventListener("dragend",()=>{dragId=null});
+    ul.append(li);
   });
-  body.append(chips);
+  body.append(ul);
+  if(isDraft("ideas")) body.append(draftInput("Write a note, press Enter"));
   rendering=false; refocus();
 }
 
@@ -650,8 +680,10 @@ function buildPanel(who){
   const mine=who===me;
   const head=h("div",{class:"box-head"},
     h("div",{class:"who"},h("span",{class:"dot",id:`dot-${who}`}),PEOPLE[who],mine?h("span",{class:"tag"},"you"):null),
+    mine?null:iconbtn("msg",`Send ${PEOPLE[who]} a message`,()=>composeMessage(who)),
     iconbtn("plus",mine?"Add a task for yourself":`Suggest a task to ${PEOPLE[who]}`,()=>startDraft("panel:"+who)));
   const seen=h("div",{class:"seen",id:`seen-${who}`});
+  const pending=mine?null:h("div",{class:"pending",id:`pending-${who}`,hidden:""});
   const sb=h(mine?"button":"div",{class:"status"+(mine?" mine":""),id:`status-${who}`},
     h("span",{class:"sdot"}),
     h("div",{class:"sbody"},h("div",{class:"stext"}),h("div",{class:"scap"})),
@@ -679,14 +711,60 @@ function buildPanel(who){
     addEventListener("click",()=>close());
   }
   const body=h("div",{class:"box-body",id:`lists-${who}`});
-  box.replaceChildren(head,seen,wrap,body);
+  box.replaceChildren(...[head,seen,pending,wrap,body].filter(Boolean));
   makeDrop(box,id=>{
     if(who===me) store.setTask(id,{idea:false,owner:me,suggestedFor:null});
     else store.setTask(id,{idea:false,owner:null,suggestedFor:who,by:me});
   });
   box.ondblclick=e=>{ if(!blockDbl(e)) startDraft("panel:"+who); };
 }
+// ─── messages: pop-up for the other person ───
+const MSG_MAX=140;
+let modalEl=null, shownMsgAt=null;
+function closeModal(){ if(modalEl){modalEl.remove();modalEl=null;} }
+function composeMessage(who){
+  closeModal();
+  const inp=h("input",{maxlength:String(MSG_MAX),placeholder:`Short message for ${PEOPLE[who]}`});
+  const count=h("span",{class:"count"},`0 / ${MSG_MAX}`);
+  const send=()=>{
+    const text=inp.value.trim(); if(!text) return;
+    store.setPresence(who,{inbox:{text,from:me,at:Date.now()}});
+    closeModal();
+  };
+  inp.oninput=()=>{count.textContent=`${inp.value.length} / ${MSG_MAX}`};
+  inp.onkeydown=e=>{ if(e.key==="Enter") send(); if(e.key==="Escape") closeModal(); };
+  modalEl=h("div",{class:"modal",onclick:e=>{ if(e.target===modalEl) closeModal(); }},
+    h("div",{class:"dlg"},
+      h("h4",{},`Message ${PEOPLE[who]}`),
+      h("div",{class:"when"},"Pops up for them right away, or the next time they open the board."),
+      inp, h("div",{style:"height:12px"}),
+      h("div",{class:"row"},count,h("button",{onclick:closeModal},"Cancel"),h("button",{class:"primary",onclick:send},"Send"))));
+  document.body.append(modalEl); inp.focus();
+}
+function checkInbox(){
+  const m=(state.presence[me]||{}).inbox;
+  if(!m||!m.text){ if(shownMsgAt){shownMsgAt=null;closeModal();} return; }
+  if(shownMsgAt===m.at) return;
+  shownMsgAt=m.at; closeModal(); endTourIfOpen();
+  modalEl=h("div",{class:"modal"},
+    h("div",{class:"dlg"},
+      h("h4",{},`Message from ${PEOPLE[m.from]||m.from}`),
+      h("div",{class:"when"},ago(m.at)),
+      h("p",{class:"msg"},m.text),
+      h("div",{class:"row"},h("button",{class:"primary",onclick:()=>{store.setPresence(me,{inbox:null});shownMsgAt=null;closeModal();}},"Got it"))));
+  document.body.append(modalEl);
+}
+function renderPending(){
+  const who=other(), el=$("#pending-"+who); if(!el) return;
+  const m=(state.presence[who]||{}).inbox;
+  if(m&&m.text&&m.from===me){
+    el.hidden=false;
+    el.replaceChildren(h("span",{class:"pt",title:m.text},"Waiting for them: ",h("b",{},`“${m.text}”`)),
+      h("button",{title:"Take the message back",onclick:()=>store.setPresence(who,{inbox:null})},"unsend"));
+  }else el.hidden=true;
+}
 function renderPresence(){
+  checkInbox(); renderPending();
   for(const who of Object.keys(PEOPLE)){
     const pr=state.presence[who]||{};
     const on=pr.lastSeen&&Date.now()-pr.lastSeen<ONLINE_WINDOW;
@@ -728,11 +806,11 @@ function renderLists(){
 }
 
 // ─── header / footer actions ───
-$("#addCol").onclick=()=>{
+function addColumn(){
   const id=uid();
   store.setCols([...cols(),{id,name:"New column"}]);
   renaming={id,text:"New column"}; renderBoard();
-};
+}
 $("#resetLayout").onclick=()=>{ try{localStorage.removeItem(LKEY)}catch{} location.reload(); };
 
 // ─── tour ───
@@ -740,14 +818,15 @@ let tourI=0, tourSteps=[];
 function buildTour(){
   const o=PEOPLE[other()];
   tourSteps=[
-    {t:"Welcome",d:"A quick tour of your shared board. Replay it anytime with the ? button in the top right.",sel:null},
+    {t:"Welcome",d:"A quick tour of your shared board. It only shows once.",sel:null},
     {t:"Set your status",d:"Click your status box and pick one. For a custom status, click the colored dot first to choose from 8 colors, then type and press Enter.",sel:"#box-panel-"+me},
     {t:"Add tasks fast",d:"Double-click inside any column, type, and press Enter. The + next to a column name does the same. Esc cancels.",sel:"#box-col-"+cols()[0].id},
     {t:"Claim, release, suggest",d:`Drag a card onto your box to claim it, back onto a column to release it, or onto ${o}'s box to suggest it. On a phone, use the buttons on each card.`,sel:"#box-panel-"+other()},
     {t:`Suggest straight to ${o}`,d:`Double-click ${o}'s box and type. They'll see it under "Suggested for" and can accept or decline.`,sel:"#box-panel-"+other()},
     {t:"Deadlines",d:`Click a task and pick a day on the calendar. It shows "due in 3 days", turns orange on the day and red when overdue. On ${o}'s tasks you suggest a deadline, and they accept or decline.`,sel:null},
-    {t:"Arrange the board",d:"Drag a box by its header to move it and drag its edges or corner to resize it. The other boxes make room. Long lists scroll inside their box. Reset layout is in the footer.",sel:null},
-    {t:"Ideas",d:"Double-click the Ideas box to jot something down. Drag an idea into a column when it becomes a real task.",sel:"#box-ideas"},
+    {t:"Arrange the board",d:"Drag a box by its header to move it and drag its edges or corner to resize it. The other boxes make room. Long lists scroll inside their box. The + Column tile adds a column. Reset layout is in the footer.",sel:null},
+    {t:"Notes",d:"Double-click empty space in Notes to write a note, signed with your name. Double-click a note to turn it into a task: it opens ready to edit, so shorten it and press Enter.",sel:"#box-ideas"},
+    {t:`Message ${o}`,d:`The speech-bubble icon on ${o}'s box sends a short message (140 characters). It pops up for them right away, or the next time they open the board.`,sel:"#box-panel-"+other()},
     {t:"Done is timestamped",d:"Press done on your own task and it moves to Done with the time you finished it. That's the tour.",sel:"#box-panel-"+me},
   ];
 }
@@ -770,7 +849,7 @@ function startTour(){ buildTour(); tourI=0; showTour(); }
 $("#tourNext").onclick=()=>{ if(tourI>=tourSteps.length-1) endTour(); else {tourI++;showTour()} };
 $("#tourBack").onclick=()=>{ if(tourI>0){tourI--;showTour()} };
 $("#tourSkip").onclick=endTour;
-$("#help").onclick=startTour;
+function endTourIfOpen(){ if($("#tour").classList.contains("show")) endTour(); }
 
 // ─── init ───
 let started=false, lastSig="";
