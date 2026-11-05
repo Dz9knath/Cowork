@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ben & Caden · Co-work</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --card:#1f232c; --line:#2a2f3b;
+    --text:#e8eaf0; --muted:#8b93a7; --accent:#7c9cff; --green:#3ddc84; --amber:#ffb454; --red:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+  header{display:flex;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  header h1{font-size:15px;margin:0 12px 0 0;letter-spacing:.3px}
+  #mode{font-size:11px;padding:2px 8px;border-radius:99px;background:#2b2418;color:var(--amber)}
+  #mode.live{background:#14291d;color:var(--green)}
+  #addbar{display:flex;gap:6px;flex:1;min-width:280px}
+  input,select,button{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+  input{flex:1;min-width:0}
+  button{cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent);color:#0b1020;border-color:var(--accent);font-weight:600}
+  main{display:grid;grid-template-columns:290px 1fr 290px;gap:14px;padding:14px;align-items:start}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:300px}
+  .panel.over,.col.over{outline:2px dashed var(--accent);outline-offset:-4px}
+  .who{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px}
+  .dot{width:10px;height:10px;border-radius:50%;background:#555}
+  .dot.on{background:var(--green);box-shadow:0 0 8px var(--green)}
+  .sub{color:var(--muted);font-size:12px;margin-top:2px}
+  .status{margin:10px 0;padding:8px 10px;background:var(--card);border-radius:8px;border:1px solid var(--line);min-height:38px}
+  .status b{display:block}
+  .statusctl{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+  .statusctl .row{display:flex;gap:6px}
+  h3{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:14px 0 6px;font-weight:600}
+  .board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .col{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:150px}
+  .col h2{font-size:13px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center;cursor:text}
+  .col h2 span.n{color:var(--muted);font-weight:400;font-size:12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;cursor:grab;display:flex;flex-direction:column;gap:4px}
+  .card.dragging{opacity:.4}
+  .card .t{word-break:break-word}
+  .card.done .t{text-decoration:line-through;color:var(--muted)}
+  .card .meta{display:flex;gap:6px;align-items:center;font-size:11px;color:var(--muted);flex-wrap:wrap}
+  .card .meta .sp{flex:1}
+  .card button{padding:2px 7px;font-size:11px;border-radius:6px}
+  .tag{background:#242a3d;color:var(--accent);padding:1px 7px;border-radius:99px}
+  .empty{color:var(--muted);font-size:12px;padding:6px 2px}
+  .addcol{border:1px dashed var(--line);background:transparent;color:var(--muted);border-radius:12px;min-height:60px}
+  #who{position:fixed;inset:0;background:rgba(5,6,10,.92);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:10}
+  #who.show{display:flex}
+  #who button{font-size:18px;padding:14px 36px}
+  footer{padding:10px 16px;color:var(--muted);font-size:12px}
+  footer a{color:var(--accent);cursor:pointer}
+  @media(max-width:900px){
+    main{grid-template-columns:1fr}
+    #board{order:-1}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🛠 Ben &amp; Caden · Co-work</h1>
+  <form id="addbar">
+    <input id="newTitle" placeholder="New task…" autocomplete="off" required>
+    <select id="newCol"></select>
+    <select id="newFor">
+      <option value="">To the board</option>
+      <option value="me">Assign to me</option>
+      <option value="other">Suggest to …</option>
+    </select>
+    <button class="primary">Add</button>
+  </form>
+  <span id="mode">local mode</span>
+</header>
+
+<main>
+  <section class="panel" id="panel-caden" data-who="caden"></section>
+  <section id="board" class="board"></section>
+  <section class="panel" id="panel-ben" data-who="ben"></section>
+</main>
+
+<footer>Drag a card onto <b>your</b> panel to claim it, onto the <b>other</b> panel to suggest it, or back onto a column to release it. Click a column title to rename. · You are <b id="meName"></b> (<a id="switch">switch</a>)</footer>
+
+<div id="who">
+  <div style="font-size:20px">Who are you?</div>
+  <button data-pick="ben" class="primary">I'm Ben</button>
+  <button data-pick="caden" class="primary">I'm Caden</button>
+</div>
+
+<script type="module">
+// ─────────────────────────────────────────────────────────────
+//  CONFIG: paste your Firebase web config here for live sync.
+//  Leave as null to run in local-only mode (single browser, for preview).
+// ─────────────────────────────────────────────────────────────
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBhV8LMkpeHSNSvcUs-Vlec5FhZClxP20A",
+  authDomain: "cowork-279b3.firebaseapp.com",
+  projectId: "cowork-279b3",
+  storageBucket: "cowork-279b3.firebasestorage.app",
+  messagingSenderId: "375749744292",
+  appId: "1:375749744292:web:c17ae3a934551c7bf4b831"
+};
+/* Example:
+const FIREBASE_CONFIG = {
+  apiKey: "...", authDomain: "...", projectId: "...", appId: "..."
+};
+*/
+
+const PEOPLE = { ben:"Ben", caden:"Caden" };
+const DEFAULT_COLS = [
+  {id:"features", name:"Feature ideas"},
+  {id:"marketing", name:"Marketing"},
+  {id:"outreach", name:"Customer outreach"},
+  {id:"other", name:"Other"},
+];
+const STATUSES = [
+  {k:"online",    label:"Online"},
+  {k:"vibe",      label:"Online · vibe coding"},
+  {k:"waiting",   label:"Vibe coded · waiting for upload (out of tokens)"},
+  {k:"uploading", label:"Uploading now"},
+  {k:"uploaded",  label:"Uploaded"},
+  {k:"away",      label:"Away"},
+];
+const ONLINE_WINDOW = 75_000;   // ms since last heartbeat that still counts as online
+const HEARTBEAT = 30_000;
+
+// ── stores ───────────────────────────────────────────────────
+function localStore(){
+  const K="cowork-v1";
+  let st = JSON.parse(localStorage.getItem(K)||"null") || {tasks:{},presence:{},cols:null};
+  const subs=[];
+  const emit=()=>subs.forEach(f=>f(st));
+  const save=()=>{localStorage.setItem(K,JSON.stringify(st));emit()};
+  addEventListener("storage",e=>{ if(e.key===K && e.newValue){st=JSON.parse(e.newValue);emit()} });
+  return {
+    live:false,
+    onChange(f){subs.push(f);f(st)},
+    setTask(id,d){st.tasks[id]={...(st.tasks[id]||{}),...d};save()},
+    delTask(id){delete st.tasks[id];save()},
+    setPresence(w,d){st.presence[w]={...(st.presence[w]||{}),...d};save()},
+    setCols(c){st.cols=c;save()},
+  };
+}
+
+async function firebaseStore(cfg){
+  const V="10.12.2";
+  const {initializeApp}=await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+  const fs=await import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`);
+  const db=fs.getFirestore(initializeApp(cfg));
+  const st={tasks:{},presence:{},cols:null}, subs=[];
+  const emit=()=>subs.forEach(f=>f(st));
+  fs.onSnapshot(fs.collection(db,"tasks"),s=>{st.tasks={};s.forEach(d=>st.tasks[d.id]=d.data());emit()});
+  fs.onSnapshot(fs.collection(db,"presence"),s=>{st.presence={};s.forEach(d=>st.presence[d.id]=d.data());emit()});
+  fs.onSnapshot(fs.doc(db,"meta","columns"),d=>{st.cols=d.exists()?d.data().list:null;emit()});
+  return {
+    live:true,
+    onChange(f){subs.push(f);f(st)},
+    setTask:(id,d)=>fs.setDoc(fs.doc(db,"tasks",id),d,{merge:true}),
+    delTask:id=>fs.deleteDoc(fs.doc(db,"tasks",id)),
+    setPresence:(w,d)=>fs.setDoc(fs.doc(db,"presence",w),d,{merge:true}),
+    setCols:c=>fs.setDoc(fs.doc(db,"meta","columns"),{list:c}),
+  };
+}
+
+const store = FIREBASE_CONFIG ? await firebaseStore(FIREBASE_CONFIG) : localStore();
+const $=s=>document.querySelector(s);
+$("#mode").textContent = store.live ? "live sync" : "local mode (no Firebase config)";
+$("#mode").classList.toggle("live", store.live);
+
+// ── identity ─────────────────────────────────────────────────
+let me = localStorage.getItem("cowork-me");
+const other = () => me==="ben" ? "caden" : "ben";
+function pickIdentity(){ $("#who").classList.add("show"); }
+document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{
+  me=b.dataset.pick; localStorage.setItem("cowork-me",me);
+  $("#who").classList.remove("show"); init();
+});
+$("#switch").onclick=pickIdentity;
+
+// ── helpers ──────────────────────────────────────────────────
+function h(tag, props={}, ...kids){
+  const e=document.createElement(tag);
+  for(const [k,v] of Object.entries(props)){
+    if(k==="class") e.className=v;
+    else if(k.startsWith("on")) e[k]=v;
+    else if(k==="data") Object.assign(e.dataset,v);
+    else e.setAttribute(k,v);
+  }
+  for(const c of kids.flat()) if(c!=null) e.append(c.nodeType?c:document.createTextNode(c));
+  return e;
+}
+function ago(ts){
+  if(!ts) return "never";
+  const s=Math.max(0,(Date.now()-ts)/1000);
+  if(s<60) return "just now";
+  const m=Math.floor(s/60); if(m<60) return `${m} min ago`;
+  const hr=Math.floor(m/60); if(hr<24) return `${hr} h ago`;
+  const d=Math.floor(hr/24); return `${d} d ago`;
+}
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+let state={tasks:{},presence:{},cols:null};
+const cols=()=>state.cols&&state.cols.length?state.cols:DEFAULT_COLS;
+
+// ── presence ─────────────────────────────────────────────────
+function heartbeat(){
+  if(!me||document.hidden) return;
+  store.setPresence(me,{lastSeen:Date.now()});
+}
+function setStatus(k,custom){
+  const label=custom || STATUSES.find(s=>s.k===k)?.label || "";
+  store.setPresence(me,{statusKey:custom?"custom":k, statusText:label, since:Date.now(), lastSeen:Date.now()});
+}
+
+// ── drag & drop ──────────────────────────────────────────────
+let dragId=null;
+function makeDrop(el, onDrop){
+  el.addEventListener("dragover",e=>{e.preventDefault();el.classList.add("over")});
+  el.addEventListener("dragleave",()=>el.classList.remove("over"));
+  el.addEventListener("drop",e=>{
+    e.preventDefault(); el.classList.remove("over");
+    const id=dragId||e.dataTransfer.getData("text/plain");
+    if(id) onDrop(id);
+  });
+}
+
+// ── cards ────────────────────────────────────────────────────
+function card(id,t,ctx){
+  const el=h("div",{class:"card"+(t.done?" done":""),draggable:"true"});
+  el.addEventListener("dragstart",e=>{dragId=id;e.dataTransfer.setData("text/plain",id);el.classList.add("dragging")});
+  el.addEventListener("dragend",()=>{dragId=null;el.classList.remove("dragging")});
+  el.append(h("div",{class:"t"},t.title));
+  const meta=h("div",{class:"meta"});
+  if(t.by) meta.append(h("span",{},`by ${PEOPLE[t.by]||t.by}`));
+  if(ctx==="panel"){
+    const c=cols().find(c=>c.id===t.col);
+    if(c) meta.append(h("span",{class:"tag"},c.name));
+  }
+  meta.append(h("span",{class:"sp"}));
+  if(ctx==="board"){
+    meta.append(h("button",{title:"Take this",onclick:()=>store.setTask(id,{owner:me,suggestedFor:null})},"take"));
+  }
+  if(ctx==="mine"){
+    meta.append(h("button",{onclick:()=>store.setTask(id,{done:!t.done})},t.done?"undo":"done"));
+    meta.append(h("button",{onclick:()=>store.setTask(id,{owner:null,done:false})},"release"));
+  }
+  if(ctx==="suggested-me"){
+    meta.append(h("button",{class:"primary",onclick:()=>store.setTask(id,{owner:me,suggestedFor:null})},"accept"));
+    meta.append(h("button",{onclick:()=>store.setTask(id,{suggestedFor:null})},"decline"));
+  }
+  meta.append(h("button",{title:"Delete",onclick:()=>{ if(confirm("Delete this task?")) store.delTask(id) }},"✕"));
+  el.append(meta);
+  return el;
+}
+
+// ── render ───────────────────────────────────────────────────
+function renderBoard(){
+  const board=$("#board"); board.replaceChildren();
+  const tasks=Object.entries(state.tasks);
+  for(const c of cols()){
+    const mine=tasks.filter(([,t])=>t.col===c.id && !t.owner && !t.suggestedFor).sort((a,b)=>a[1].ts-b[1].ts);
+    const col=h("div",{class:"col"});
+    const title=h("h2",{title:"Click to rename",onclick:()=>{
+      const n=prompt("Rename column",c.name); if(n&&n.trim()) store.setCols(cols().map(x=>x.id===c.id?{...x,name:n.trim()}:x));
+    }}, h("span",{},c.name), h("span",{class:"n"},String(mine.length)));
+    col.append(title);
+    if(!mine.length) col.append(h("div",{class:"empty"},"Nothing here"));
+    mine.forEach(([id,t])=>col.append(card(id,t,"board")));
+    makeDrop(col,id=>store.setTask(id,{owner:null,suggestedFor:null,done:false,col:c.id}));
+    board.append(col);
+  }
+  board.append(h("button",{class:"addcol",onclick:()=>{
+    const n=prompt("New column name"); if(n&&n.trim()) store.setCols([...cols(),{id:uid(),name:n.trim()}]);
+  }},"+ column"));
+  // select options (keep selection)
+  const sel=$("#newCol"), prev=sel.value;
+  sel.replaceChildren(...cols().map(c=>h("option",{value:c.id},c.name)));
+  if(cols().some(c=>c.id===prev)) sel.value=prev;
+}
+
+function buildPanel(who){
+  const p=$("#panel-"+who); p.replaceChildren();
+  p.append(
+    h("div",{class:"who"}, h("span",{class:"dot",id:`dot-${who}`}), PEOPLE[who], who===me?h("span",{class:"tag"},"you"):null),
+    h("div",{class:"sub",id:`seen-${who}`}),
+    h("div",{class:"status",id:`status-${who}`}),
+  );
+  if(who===me){
+    const sel=h("select",{id:"statusSel"},
+      h("option",{value:""},"Set status…"),
+      STATUSES.map(s=>h("option",{value:s.k},s.label)));
+    sel.onchange=()=>{ if(sel.value){setStatus(sel.value);sel.value=""} };
+    const inp=h("input",{id:"statusCustom",placeholder:"Custom status…",maxlength:"80"});
+    const go=h("button",{onclick:()=>{ if(inp.value.trim()){setStatus("custom",inp.value.trim());inp.value=""} }},"Set");
+    inp.onkeydown=e=>{ if(e.key==="Enter") go.click() };
+    p.append(h("div",{class:"statusctl"},sel,h("div",{class:"row"},inp,go)));
+  }
+  p.append(h("div",{id:`lists-${who}`}));
+  makeDrop(p,id=>{
+    if(who===me) store.setTask(id,{owner:me,suggestedFor:null});
+    else store.setTask(id,{owner:null,suggestedFor:who,by:me});
+  });
+}
+
+function renderPresence(){
+  for(const who of Object.keys(PEOPLE)){
+    const pr=state.presence[who]||{};
+    const on=pr.lastSeen && Date.now()-pr.lastSeen<ONLINE_WINDOW;
+    $("#dot-"+who)?.classList.toggle("on",!!on);
+    const seen=$("#seen-"+who); if(seen) seen.textContent = on ? "Online now" : `Last online ${ago(pr.lastSeen)}`;
+    const st=$("#status-"+who);
+    if(st){
+      st.replaceChildren();
+      if(pr.statusText){
+        st.append(h("b",{},pr.statusText), h("span",{class:"sub"},`since ${ago(pr.since)}`));
+      } else st.append(h("span",{class:"sub"},"No status set"));
+    }
+  }
+}
+
+function renderLists(){
+  const tasks=Object.entries(state.tasks).sort((a,b)=>a[1].ts-b[1].ts);
+  for(const who of Object.keys(PEOPLE)){
+    const box=$("#lists-"+who); if(!box) continue; box.replaceChildren();
+    const working=tasks.filter(([,t])=>t.owner===who && !t.done);
+    const done=tasks.filter(([,t])=>t.owner===who && t.done);
+    const sugg=tasks.filter(([,t])=>!t.owner && t.suggestedFor===who);
+    box.append(h("h3",{},`Working on (${working.length})`));
+    if(!working.length) box.append(h("div",{class:"empty"},who===me?"Drag something here or hit “take”.":"Nothing claimed."));
+    working.forEach(([id,t])=>box.append(card(id,t,who===me?"mine":"panel")));
+    if(sugg.length){
+      box.append(h("h3",{},`Suggested for ${who===me?"you":PEOPLE[who]} (${sugg.length})`));
+      sugg.forEach(([id,t])=>box.append(card(id,t,who===me?"suggested-me":"panel")));
+    }
+    if(done.length){
+      box.append(h("h3",{},`Done (${done.length})`));
+      done.forEach(([id,t])=>box.append(card(id,t,who===me?"mine":"panel")));
+    }
+  }
+}
+
+function renderAll(){ renderBoard(); renderLists(); renderPresence(); }
+
+// ── add task ─────────────────────────────────────────────────
+$("#addbar").onsubmit=e=>{
+  e.preventDefault();
+  const title=$("#newTitle").value.trim(); if(!title) return;
+  const dest=$("#newFor").value;
+  const t={title,col:$("#newCol").value||cols()[0].id,owner:null,suggestedFor:null,done:false,by:me,ts:Date.now()};
+  if(dest==="me") t.owner=me;
+  if(dest==="other") t.suggestedFor=other();
+  store.setTask(uid(),t);
+  $("#newTitle").value=""; $("#newFor").value="";
+};
+$("#newFor").querySelector('[value="other"]').textContent="Suggest to the other person";
+
+// ── init ─────────────────────────────────────────────────────
+let started=false;
+function init(){
+  if(!me){ pickIdentity(); return; }
+  $("#meName").textContent=PEOPLE[me];
+  buildPanel("caden"); buildPanel("ben");
+  $("#newFor").querySelector('[value="other"]').textContent=`Suggest to ${PEOPLE[other()]}`;
+  if(!started){
+    started=true;
+    store.onChange(s=>{ state=s; renderAll(); });
+    setInterval(heartbeat,HEARTBEAT);
+    setInterval(renderPresence,15_000);
+    document.addEventListener("visibilitychange",heartbeat);
+  }
+  heartbeat(); renderAll();
+}
+init();
+</script>
+</body>
+</html>
