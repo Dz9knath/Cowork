@@ -61,7 +61,7 @@
   .box-head .name{flex:1;min-width:0;font-weight:600;font-size:.98rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .box-head .n{color:var(--sun);font-size:.85rem;font-weight:600;margin-right:2px}
   .box-head input.rename{padding:3px 8px;font-weight:600}
-  .box-body{flex:1;min-height:0;overflow:auto;padding:4px 12px 12px;scrollbar-width:thin;scrollbar-color:#24697b transparent}
+  .box-body{position:relative;flex:1;min-height:0;overflow:auto;padding:4px 12px 12px;scrollbar-width:thin;scrollbar-color:#24697b transparent}
   .iconbtn{width:28px;height:28px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-color:transparent;color:var(--muted);border-radius:var(--r2)}
   .iconbtn:hover{color:var(--text);border-color:var(--line2)}
   .iconbtn.yes{color:var(--green);border-color:rgba(53,208,127,.45)}
@@ -107,7 +107,7 @@
   .card .t{word-break:break-word;font-size:.95rem;cursor:pointer}
   .card.done .t{text-decoration:line-through;color:var(--muted);cursor:default}
   .card .meta{display:flex;gap:6px;align-items:center;font-size:.78rem;color:var(--muted);flex-wrap:wrap}
-  .card .meta .sp{flex:1}
+  .card .meta .acts{display:flex;gap:6px;align-items:center;margin-left:auto;flex-wrap:nowrap}
   .card .meta button.sm{padding:1px 8px;font-size:.78rem}
   .tag{background:rgba(30,156,142,.2);color:#7fe0d2;padding:1px 8px;border-radius:99px}
   .doneat{color:var(--green)}
@@ -130,9 +130,10 @@
   .note:hover .del,.note .confirm{opacity:1}
   .note.converting{opacity:.45}
   .addtile{height:100%;display:flex;align-items:center;justify-content:center}
-  .addtile button{width:100%;height:100%;border:1px dashed var(--line2);border-radius:var(--r);background:rgba(11,60,73,.45);color:var(--muted);font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
+  .addtile button{width:100%;height:100%;border:1px dashed var(--line2);border-radius:var(--r);background:rgba(11,60,73,.45);color:var(--muted);font-weight:600;font-size:.85rem;padding:0 8px;display:flex;align-items:center;justify-content:center;gap:6px}
   .addtile button:hover{border-color:var(--sun);color:var(--sun)}
   .pending{margin:0 12px 8px;font-size:.8rem;color:var(--muted);display:flex;gap:8px;align-items:center;background:rgba(233,169,42,.08);border:1px solid rgba(233,169,42,.25);border-radius:var(--r2);padding:4px 6px 4px 10px}
+  .pending[hidden]{display:none}
   .pending .pt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pending b{color:var(--sun);font-weight:600}
   .pending button{padding:0 7px;font-size:.75rem;margin-left:auto}
@@ -234,6 +235,7 @@ const STATUSES = [
   {k:"away",      label:"Away",                            color:"gray",  mode:"ago"},
 ];
 const SWATCHES = ["green","blue","red","gray","teal","sun","coral","purple"];
+const TOUR_VERSION = "2026-11-05-c"; // bump on every update so the tour shows again
 const ONLINE_WINDOW = 75_000;
 const HEARTBEAT = 30_000;
 
@@ -241,9 +243,10 @@ const HEARTBEAT = 30_000;
 function localStore(){
   const K="cowork-v1";
   let st = JSON.parse(localStorage.getItem(K)||"null") || {tasks:{},presence:{},cols:null};
+  st.loaded=true;
   const subs=[]; const emit=()=>subs.forEach(f=>f(st));
   const save=()=>{localStorage.setItem(K,JSON.stringify(st));emit()};
-  addEventListener("storage",e=>{ if(e.key===K && e.newValue){st=JSON.parse(e.newValue);emit()} });
+  addEventListener("storage",e=>{ if(e.key===K && e.newValue){st=JSON.parse(e.newValue);st.loaded=true;emit()} });
   return {
     live:false,
     onChange(f){subs.push(f);f(st)},
@@ -261,7 +264,7 @@ async function firebaseStore(cfg){
   const st={tasks:{},presence:{},cols:null}, subs=[];
   const emit=()=>subs.forEach(f=>f(st));
   fs.onSnapshot(fs.collection(db,"tasks"),s=>{st.tasks={};s.forEach(d=>st.tasks[d.id]=d.data());emit()});
-  fs.onSnapshot(fs.collection(db,"presence"),s=>{st.presence={};s.forEach(d=>st.presence[d.id]=d.data());emit()});
+  fs.onSnapshot(fs.collection(db,"presence"),s=>{st.presence={};s.forEach(d=>st.presence[d.id]=d.data());st.loaded=true;emit()});
   fs.onSnapshot(fs.doc(db,"meta","columns"),d=>{st.cols=d.exists()?d.data().list:null;emit()});
   return {
     live:true,
@@ -432,23 +435,23 @@ if(!window.GridStack){
   document.body.insertAdjacentHTML("beforeend",'<p style="padding:20px;color:#F2603F">Could not load the layout library (gridstack). Check your internet connection and reload.</p>');
   throw new Error("GridStack missing");
 }
-const LKEY="cowork-layout-v3";
+const LKEY="cowork-layout-v4";
 let layout={}; try{layout=JSON.parse(localStorage.getItem(LKEY)||"{}")||{}}catch{}
 const DEFAULT_LAYOUT={
   "panel-caden":{x:0,y:0,w:3,h:15},
   "panel-ben":{x:9,y:0,w:3,h:15},
   "ideas":{x:3,y:11,w:6,h:5},
-  "addcol":{x:7,y:9,w:2,h:2},
+  "addcol":{x:7,y:9,w:2,h:1},
 };
 const boxes={}; let grid=null;
 function makeItem(id,def){
   const L=layout[id]||def||{};
   const small=id==="addcol";
-  const attrs={class:"grid-stack-item","gs-id":id,id:"box-"+id.replace(":","-"),"gs-min-w":small?1:2,"gs-min-h":small?1:4,"gs-w":L.w||2,"gs-h":L.h||10};
+  const attrs={class:"grid-stack-item","gs-id":id,id:"box-"+id.replace(":","-"),"gs-min-w":small?1:2,"gs-min-h":small?1:(id.startsWith("col:")?2:4),"gs-w":L.w||2,"gs-h":L.h||10};
   if(L.x!=null){attrs["gs-x"]=L.x;attrs["gs-y"]=L.y}else attrs["gs-auto-position"]="true";
   const person=id.startsWith("panel-");
   if(small) return h("div",attrs,h("div",{class:"grid-stack-item-content"},
-    h("div",{class:"addtile"},h("button",{title:"Add a column (drag the tile to move it)",onclick:addColumn},icon("plus",16),"Column"))));
+    h("div",{class:"addtile"},h("button",{title:"Add a column (drag the tile to move it)",onclick:addColumn},icon("plus",14),"Column"))));
   return h("div",attrs,h("div",{class:"grid-stack-item-content"},
     h("div",{class:"box"+(person?" person":"")},h("div",{class:"box-head"}),h("div",{class:"box-body"}))));
 }
@@ -470,7 +473,36 @@ function ensureGrid(){
     columnOpts:{breakpoints:[{w:820,c:1}]},
   },gridEl);
   grid.on("change added removed",saveLayout);
+  // dragging a column's height yourself pins it; double-click a resize handle to go back to auto
+  grid.on("resizestop",(e,el)=>{
+    const id=el.gridstackNode&&el.gridstackNode.id;
+    if(id&&id.startsWith("col:")){ manualH[id]=true; saveManual(); }
+  });
+  gridEl.addEventListener("dblclick",e=>{
+    const hd=e.target.closest(".ui-resizable-handle"); if(!hd) return;
+    const it=hd.closest(".grid-stack-item"); const id=it&&it.gridstackNode&&it.gridstackNode.id;
+    if(id&&manualH[id]){ e.stopPropagation(); delete manualH[id]; saveManual(); autoFit(); }
+  });
   bindIdeas();
+}
+const MKEY="cowork-manual-height";
+let manualH={}; try{manualH=JSON.parse(localStorage.getItem(MKEY)||"{}")||{}}catch{}
+const saveManual=()=>{ try{localStorage.setItem(MKEY,JSON.stringify(manualH))}catch{} };
+const AUTO_MIN=2, AUTO_MAX=14;
+function autoFit(){
+  if(!grid||grid.getColumn()!==12) return;
+  const cell=grid.getCellHeight();
+  grid.batchUpdate();
+  Object.entries(boxes).forEach(([id,it])=>{
+    if(!id.startsWith("col:")||manualH[id]) return;
+    const box=it.querySelector(".box"), head=it.querySelector(".box-head"), body=it.querySelector(".box-body");
+    let contentH=8;
+    for(const c of body.children){ contentH=Math.max(contentH,c.offsetTop+c.offsetHeight); }
+    const px=head.offsetHeight+contentH+14+3+10; // body padding, borders, grid margin
+    const want=clamp(Math.ceil(px/cell),AUTO_MIN,AUTO_MAX);
+    if(it.gridstackNode&&it.gridstackNode.h!==want) grid.update(it,{h:want});
+  });
+  grid.batchUpdate(false);
 }
 function syncColBoxes(){
   const want=cols().map(c=>"col:"+c.id);
@@ -566,6 +598,7 @@ function card(id,t,ctx){
   }
 
   const meta=h("div",{class:"meta"});
+  const acts=h("div",{class:"acts"});
   if(!t.done){
     if(t.due){
       const d=dueInfo(t.due);
@@ -580,17 +613,17 @@ function card(id,t,ctx){
     if(c) meta.append(h("span",{class:"tag"},c.name));
   }
   if(t.done&&t.doneAt) meta.append(h("span",{class:"doneat"},`done ${ago(t.doneAt)}`));
-  meta.append(h("span",{class:"sp"}));
-  if(ctx==="board") meta.append(h("button",{class:"sm",title:"Take this",onclick:()=>store.setTask(id,{owner:me,suggestedFor:null})},"take"));
+  if(ctx==="board") acts.append(h("button",{class:"sm",title:"Take this",onclick:()=>store.setTask(id,{owner:me,suggestedFor:null})},"take"));
   if(ctx==="mine"){
-    meta.append(h("button",{class:"sm",onclick:()=>store.setTask(id,t.done?{done:false,doneAt:null}:{done:true,doneAt:Date.now()})},t.done?"undo":"done"));
-    meta.append(h("button",{class:"sm",onclick:()=>store.setTask(id,{owner:null,done:false,doneAt:null})},"release"));
+    acts.append(h("button",{class:"sm",onclick:()=>store.setTask(id,t.done?{done:false,doneAt:null}:{done:true,doneAt:Date.now()})},t.done?"undo":"done"));
+    acts.append(h("button",{class:"sm",onclick:()=>store.setTask(id,{owner:null,done:false,doneAt:null})},"release"));
   }
   if(ctx==="suggested-me"){
-    meta.append(h("button",{class:"sm primary",onclick:()=>store.setTask(id,{owner:me,suggestedFor:null})},"accept"));
-    meta.append(h("button",{class:"sm",onclick:()=>store.setTask(id,{suggestedFor:null})},"decline"));
+    acts.append(h("button",{class:"sm primary",onclick:()=>store.setTask(id,{owner:me,suggestedFor:null})},"accept"));
+    acts.append(h("button",{class:"sm",onclick:()=>store.setTask(id,{suggestedFor:null})},"decline"));
   }
-  meta.append(confirmControl("task:"+id,"Delete task",()=>store.delTask(id)));
+  acts.append(confirmControl("task:"+id,"Delete task",()=>store.delTask(id)));
+  meta.append(acts);
   el.append(meta);
   return el;
 }
@@ -631,6 +664,7 @@ function renderBoard(){
     if(!here.length&&!isDraft("col:"+c.id)) body.append(h("div",{class:"hint"},"Double-click to add a task"));
     here.forEach(([id,t])=>body.append(card(id,t,"board")));
   });
+  autoFit();
   rendering=false; refocus();
 }
 
@@ -843,7 +877,7 @@ function showTour(){
 function endTour(){
   $$(".tour-hl").forEach(e=>e.classList.remove("tour-hl"));
   $("#tour").classList.remove("show");
-  try{localStorage.setItem("cowork-tour-seen-2","1")}catch{}
+  if(me) store.setPresence(me,{tourSeen:TOUR_VERSION});
 }
 function startTour(){ buildTour(); tourI=0; showTour(); }
 $("#tourNext").onclick=()=>{ if(tourI>=tourSteps.length-1) endTour(); else {tourI++;showTour()} };
@@ -865,6 +899,7 @@ function init(){
       const sig=JSON.stringify([s.tasks,s.cols]);
       if(sig!==lastSig){ lastSig=sig; rerender(); }
       renderPresence();
+      maybeTour();
     });
     setInterval(heartbeat,HEARTBEAT);
     setInterval(()=>{
@@ -874,7 +909,15 @@ function init(){
     document.addEventListener("visibilitychange",heartbeat);
   }
   lastSig=""; rerender(); renderPresence(); heartbeat();
-  if(!localStorage.getItem("cowork-tour-seen-2")) startTour();
+  tourChecked=false; maybeTour();
+}
+let tourChecked=false;
+function maybeTour(){
+  if(tourChecked||!me||!state.loaded) return;
+  const pr=state.presence[me]||{};
+  if(pr.inbox&&pr.inbox.text) return;          // show the message first, tour after "Got it"
+  tourChecked=true;
+  if(pr.tourSeen!==TOUR_VERSION) startTour();
 }
 init();
 </script>
