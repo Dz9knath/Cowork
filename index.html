@@ -3,97 +3,179 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ben & Caden · Co-work</title>
+<title>Reel 2 Real · Cowork</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0f1115; --panel:#171a21; --card:#1f232c; --line:#2a2f3b;
-    --text:#e8eaf0; --muted:#8b93a7; --accent:#7c9cff; --green:#3ddc84; --amber:#ffb454; --red:#ff6b6b;
+    /* Reel 2 Real "Travel teal" palette */
+    --bg:#072B35;      /* darker than Deep, page background */
+    --panel:#0B3C49;   /* Deep */
+    --card:#10495A;
+    --line:#1B5F70;
+    --text:#F3F7F6;    /* Mist */
+    --muted:#8FB5BA;
+    --coral:#F2603F;
+    --teal:#1E9C8E;
+    --sun:#E9A92A;
+    /* status colors */
+    --green:#35D07F; --blue:#5AA2FF; --red:#FF5A5A; --gray:#8A9BA0;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
-  header{display:flex;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-  header h1{font-size:15px;margin:0 12px 0 0;letter-spacing:.3px}
-  #mode{font-size:11px;padding:2px 8px;border-radius:99px;background:#2b2418;color:var(--amber)}
-  #mode.live{background:#14291d;color:var(--green)}
-  #addbar{display:flex;gap:6px;flex:1;min-width:280px}
-  input,select,button{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
-  input{flex:1;min-width:0}
-  button{cursor:pointer}
-  button:hover{border-color:var(--accent)}
-  button.primary{background:var(--accent);color:#0b1020;border-color:var(--accent);font-weight:600}
-  main{display:grid;grid-template-columns:290px 1fr 290px;gap:14px;padding:14px;align-items:start}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:300px}
-  .panel.over,.col.over{outline:2px dashed var(--accent);outline-offset:-4px}
-  .who{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px}
-  .dot{width:10px;height:10px;border-radius:50%;background:#555}
-  .dot.on{background:var(--green);box-shadow:0 0 8px var(--green)}
-  .sub{color:var(--muted);font-size:12px;margin-top:2px}
-  .status{margin:10px 0;padding:8px 10px;background:var(--card);border-radius:8px;border:1px solid var(--line);min-height:38px}
-  .status b{display:block}
-  .statusctl{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
-  .statusctl .row{display:flex;gap:6px}
-  h3{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:14px 0 6px;font-weight:600}
-  .board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-  .col{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:150px}
-  .col h2{font-size:13px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center;cursor:text}
-  .col h2 span.n{color:var(--muted);font-weight:400;font-size:12px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;cursor:grab;display:flex;flex-direction:column;gap:4px}
+  html{font-size:17px}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.4;min-height:100vh}
+  button,input{font:inherit;color:var(--text)}
+  button{cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 12px}
+  button:hover{border-color:var(--coral)}
+  button.primary{background:var(--coral);border-color:var(--coral);color:#fff;font-weight:700}
+  input{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;width:100%;outline:none}
+  input:focus{border-color:var(--coral)}
+
+  header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .brand{display:flex;align-items:baseline;gap:10px}
+  #logo{display:none;height:36px;align-self:center}
+  #wordmark{font-size:1.5rem;font-weight:700;letter-spacing:-.5px}
+  #wordmark b{color:var(--coral);margin:0 .12em}
+  .brand .sub{color:var(--muted);font-size:.95rem}
+  .spacer{flex:1}
+  #mode{font-size:.8rem;padding:3px 10px;border-radius:99px;background:#3a2f14;color:var(--sun)}
+  #mode.live{background:#0f3a33;color:var(--green)}
+  #help{width:34px;height:34px;border-radius:50%;padding:0;font-weight:700}
+
+  main{display:flex;padding:14px;min-height:calc(100vh - 118px);align-items:stretch}
+  .panel{flex:0 0 310px;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;position:relative}
+  .panel.over,.col.over,.ideas.over{outline:2px dashed var(--coral);outline-offset:-4px}
+  .divider{flex:0 0 12px;cursor:col-resize;position:relative;touch-action:none}
+  .divider::after{content:"";position:absolute;left:50%;top:12px;bottom:12px;width:3px;margin-left:-1.5px;border-radius:3px;background:var(--line);transition:background .15s}
+  .divider:hover::after,.dragging .divider.active::after{background:var(--coral)}
+  body.dragging{user-select:none;cursor:col-resize}
+
+  .who{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.3rem}
+  .who .tag{font-size:.75rem;font-weight:500}
+  .who .plus{margin-left:auto}
+  .dot{width:12px;height:12px;border-radius:50%;background:var(--gray);flex:none}
+  .dot.on{background:var(--green);box-shadow:0 0 10px var(--green)}
+  .seen{color:var(--muted);font-size:.9rem;margin:2px 0 10px}
+
+  .statuswrap{position:relative;margin-bottom:12px}
+  .status{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:58px}
+  .status.mine{cursor:pointer}
+  .status.mine:hover{border-color:var(--coral)}
+  .sdot{width:14px;height:14px;border-radius:50%;flex:none;background:var(--gray)}
+  .sdot.green{background:var(--green)} .sdot.blue{background:var(--blue)} .sdot.red{background:var(--red)}
+  .sdot.gray{background:var(--gray)} .sdot.teal{background:var(--teal)}
+  .sbody{flex:1;min-width:0}
+  .stext{font-weight:700}
+  .scap{color:var(--muted);font-size:.85rem}
+  .chev{color:var(--muted)}
+  .menu{display:none;position:absolute;z-index:5;left:0;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 12px 30px rgba(0,0,0,.45)}
+  .menu.open{display:block}
+  .menu .opt{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;text-align:left;padding:9px 10px;border-radius:8px}
+  .menu .opt:hover{background:var(--card)}
+  .menu .custom{padding:6px 4px 2px}
+
+  h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin:16px 0 8px;font-weight:700}
+  .hint{color:var(--muted);font-size:.9rem;padding:4px 2px}
+
+  .boardwrap{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:12px}
+  .cols{display:flex;flex:1;min-width:0;overflow-x:auto;align-items:stretch}
+  .col{flex:1 1 0;min-width:150px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;min-height:240px}
+  .col h2{font-size:1.05rem;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+  .col h2 .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .col h2 .n{color:var(--muted);font-weight:400;font-size:.85rem}
+  .iconbtn{padding:0 7px;line-height:24px;font-size:.9rem;border-radius:8px;background:transparent;border-color:transparent;color:var(--muted)}
+  .iconbtn:hover{color:var(--text);border-color:var(--line)}
+  .addcol{flex:0 0 52px;margin-left:12px;border:1px dashed var(--line);background:transparent;color:var(--muted);border-radius:16px;font-size:1.4rem}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:grab;display:flex;flex-direction:column;gap:6px}
   .card.dragging{opacity:.4}
   .card .t{word-break:break-word}
   .card.done .t{text-decoration:line-through;color:var(--muted)}
-  .card .meta{display:flex;gap:6px;align-items:center;font-size:11px;color:var(--muted);flex-wrap:wrap}
+  .card .meta{display:flex;gap:6px;align-items:center;font-size:.8rem;color:var(--muted);flex-wrap:wrap}
   .card .meta .sp{flex:1}
-  .card button{padding:2px 7px;font-size:11px;border-radius:6px}
-  .tag{background:#242a3d;color:var(--accent);padding:1px 7px;border-radius:99px}
-  .empty{color:var(--muted);font-size:12px;padding:6px 2px}
-  .addcol{border:1px dashed var(--line);background:transparent;color:var(--muted);border-radius:12px;min-height:60px}
-  #who{position:fixed;inset:0;background:rgba(5,6,10,.92);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:10}
+  .card button{padding:2px 9px;font-size:.8rem;border-radius:8px}
+  .tag{background:#0f5560;color:#7fe0d2;padding:1px 9px;border-radius:99px}
+  .doneat{color:var(--green)}
+
+  .ideas{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+  .ideas h3{margin:0 0 8px;display:flex;align-items:center;gap:8px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--sun);border-radius:10px;padding:6px 8px 6px 12px;cursor:grab}
+  .chip .x{padding:0 6px;background:transparent;border-color:transparent;color:var(--muted)}
+  .draft{margin:0 0 8px}
+
+  #who{position:fixed;inset:0;background:rgba(4,20,26,.94);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:20}
   #who.show{display:flex}
-  #who button{font-size:18px;padding:14px 36px}
-  footer{padding:10px 16px;color:var(--muted);font-size:12px}
-  footer a{color:var(--accent);cursor:pointer}
+  #who .q{font-size:1.5rem;font-weight:700;margin-bottom:6px}
+  #who button{width:260px;padding:16px 0;font-size:1.2rem;border-radius:14px}
+
+  #tour{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);width:min(440px,calc(100vw - 24px));background:var(--panel);border:2px solid var(--coral);border-radius:16px;padding:16px 18px;z-index:30;display:none;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+  #tour.show{display:block}
+  #tour h4{margin:0 0 6px;font-size:1.15rem}
+  #tour p{margin:0 0 14px;color:var(--text)}
+  #tour .row{display:flex;gap:8px;align-items:center}
+  #tour .steps{color:var(--muted);font-size:.85rem;flex:1}
+  .tour-hl{outline:3px solid var(--coral)!important;outline-offset:3px;border-radius:14px;position:relative;z-index:6}
+
+  footer{padding:10px 18px 20px;color:var(--muted);font-size:.9rem}
+  footer a{color:var(--coral);cursor:pointer}
+
   @media(max-width:900px){
-    main{grid-template-columns:1fr}
-    #board{order:-1}
+    main{flex-direction:column;gap:12px}
+    .panel{flex:none!important}
+    .divider{display:none}
+    .boardwrap{order:-1}
+    .cols{flex-direction:column;overflow:visible;gap:12px}
+    .col{flex:none!important}
+    .addcol{margin-left:0;flex:none;min-height:52px}
   }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🛠 Ben &amp; Caden · Co-work</h1>
-  <form id="addbar">
-    <input id="newTitle" placeholder="New task…" autocomplete="off" required>
-    <select id="newCol"></select>
-    <select id="newFor">
-      <option value="">To the board</option>
-      <option value="me">Assign to me</option>
-      <option value="other">Suggest to …</option>
-    </select>
-    <button class="primary">Add</button>
-  </form>
+  <div class="brand">
+    <img id="logo" src="logo.png" alt="Reel 2 Real">
+    <span id="wordmark">Reel<b>2</b>Real</span>
+    <span class="sub">cowork</span>
+  </div>
+  <div class="spacer"></div>
   <span id="mode">local mode</span>
+  <button id="help" title="Show the tour again">?</button>
 </header>
 
-<main>
-  <section class="panel" id="panel-caden" data-who="caden"></section>
-  <section id="board" class="board"></section>
-  <section class="panel" id="panel-ben" data-who="ben"></section>
+<main id="main">
+  <section class="panel" id="panel-caden"></section>
+  <div class="divider" id="div-caden"></div>
+  <section class="boardwrap" id="boardwrap">
+    <div class="cols" id="cols"></div>
+    <div class="ideas" id="ideas"></div>
+  </section>
+  <div class="divider" id="div-ben"></div>
+  <section class="panel" id="panel-ben"></section>
 </main>
 
-<footer>Drag a card onto <b>your</b> panel to claim it, onto the <b>other</b> panel to suggest it, or back onto a column to release it. Click a column title to rename. · You are <b id="meName"></b> (<a id="switch">switch</a>)</footer>
+<footer>You are <b id="meName"></b> (<a id="switch">switch</a>)</footer>
 
 <div id="who">
-  <div style="font-size:20px">Who are you?</div>
+  <div class="q">Who are you?</div>
   <button data-pick="ben" class="primary">I'm Ben</button>
   <button data-pick="caden" class="primary">I'm Caden</button>
 </div>
 
+<div id="tour">
+  <h4 id="tourTitle"></h4>
+  <p id="tourText"></p>
+  <div class="row">
+    <span class="steps" id="tourSteps"></span>
+    <button id="tourSkip">Skip</button>
+    <button id="tourBack">Back</button>
+    <button id="tourNext" class="primary">Next</button>
+  </div>
+</div>
+
 <script type="module">
-// ─────────────────────────────────────────────────────────────
-//  CONFIG: paste your Firebase web config here for live sync.
-//  Leave as null to run in local-only mode (single browser, for preview).
-// ─────────────────────────────────────────────────────────────
+// ─── Firebase config (live sync) ───
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyBhV8LMkpeHSNSvcUs-Vlec5FhZClxP20A",
   authDomain: "cowork-279b3.firebaseapp.com",
@@ -102,36 +184,30 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "375749744292",
   appId: "1:375749744292:web:c17ae3a934551c7bf4b831"
 };
-/* Example:
-const FIREBASE_CONFIG = {
-  apiKey: "...", authDomain: "...", projectId: "...", appId: "..."
-};
-*/
 
 const PEOPLE = { ben:"Ben", caden:"Caden" };
 const DEFAULT_COLS = [
   {id:"features", name:"Feature ideas"},
   {id:"marketing", name:"Marketing"},
-  {id:"outreach", name:"Customer outreach"},
   {id:"other", name:"Other"},
 ];
+// mode "since" -> "since 5 min ago", mode "ago" -> "5 min ago"
 const STATUSES = [
-  {k:"online",    label:"Online"},
-  {k:"vibe",      label:"Online · vibe coding"},
-  {k:"waiting",   label:"Vibe coded · waiting for upload (out of tokens)"},
-  {k:"uploading", label:"Uploading now"},
-  {k:"uploaded",  label:"Uploaded"},
-  {k:"away",      label:"Away"},
+  {k:"online",    label:"Online",                          color:"green", mode:"since"},
+  {k:"vibe",      label:"Online · vibe coding",            color:"blue",  mode:"since"},
+  {k:"waiting",   label:"Vibe coded · waiting for upload", color:"blue",  mode:"ago"},
+  {k:"uploading", label:"Uploading now",                   color:"red",   mode:"since"},
+  {k:"uploaded",  label:"Uploaded",                        color:"gray",  mode:"ago"},
+  {k:"away",      label:"Away",                            color:"gray",  mode:"ago"},
 ];
-const ONLINE_WINDOW = 75_000;   // ms since last heartbeat that still counts as online
+const ONLINE_WINDOW = 75_000;
 const HEARTBEAT = 30_000;
 
-// ── stores ───────────────────────────────────────────────────
+// ─── stores ───
 function localStore(){
   const K="cowork-v1";
   let st = JSON.parse(localStorage.getItem(K)||"null") || {tasks:{},presence:{},cols:null};
-  const subs=[];
-  const emit=()=>subs.forEach(f=>f(st));
+  const subs=[]; const emit=()=>subs.forEach(f=>f(st));
   const save=()=>{localStorage.setItem(K,JSON.stringify(st));emit()};
   addEventListener("storage",e=>{ if(e.key===K && e.newValue){st=JSON.parse(e.newValue);emit()} });
   return {
@@ -143,7 +219,6 @@ function localStore(){
     setCols(c){st.cols=c;save()},
   };
 }
-
 async function firebaseStore(cfg){
   const V="10.12.2";
   const {initializeApp}=await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
@@ -163,34 +238,29 @@ async function firebaseStore(cfg){
     setCols:c=>fs.setDoc(fs.doc(db,"meta","columns"),{list:c}),
   };
 }
-
 const store = FIREBASE_CONFIG ? await firebaseStore(FIREBASE_CONFIG) : localStore();
+
 const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
 $("#mode").textContent = store.live ? "live sync" : "local mode (no Firebase config)";
 $("#mode").classList.toggle("live", store.live);
 
-// ── identity ─────────────────────────────────────────────────
-let me = localStorage.getItem("cowork-me");
-const other = () => me==="ben" ? "caden" : "ben";
-function pickIdentity(){ $("#who").classList.add("show"); }
-document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{
-  me=b.dataset.pick; localStorage.setItem("cowork-me",me);
-  $("#who").classList.remove("show"); init();
-});
-$("#switch").onclick=pickIdentity;
+// logo: shows if logo.png exists next to this file, otherwise the text wordmark stays
+const logo=$("#logo");
+logo.onload=()=>{logo.style.display="block";$("#wordmark").hidden=true};
 
-// ── helpers ──────────────────────────────────────────────────
+// ─── helpers ───
 function h(tag, props={}, ...kids){
   const e=document.createElement(tag);
   for(const [k,v] of Object.entries(props)){
     if(k==="class") e.className=v;
     else if(k.startsWith("on")) e[k]=v;
-    else if(k==="data") Object.assign(e.dataset,v);
     else e.setAttribute(k,v);
   }
-  for(const c of kids.flat()) if(c!=null) e.append(c.nodeType?c:document.createTextNode(c));
+  for(const c of kids.flat()) if(c!=null&&c!==false) e.append(c.nodeType?c:document.createTextNode(c));
   return e;
 }
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function ago(ts){
   if(!ts) return "never";
   const s=Math.max(0,(Date.now()-ts)/1000);
@@ -200,50 +270,135 @@ function ago(ts){
   const d=Math.floor(hr/24); return `${d} d ago`;
 }
 const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+
+let me=localStorage.getItem("cowork-me");
+const other=()=>me==="ben"?"caden":"ben";
 let state={tasks:{},presence:{},cols:null};
 const cols=()=>state.cols&&state.cols.length?state.cols:DEFAULT_COLS;
 
-// ── presence ─────────────────────────────────────────────────
-function heartbeat(){
-  if(!me||document.hidden) return;
-  store.setPresence(me,{lastSeen:Date.now()});
-}
+// ─── identity ───
+function pickIdentity(){ $("#who").classList.add("show"); }
+$$("[data-pick]").forEach(b=>b.onclick=()=>{
+  me=b.dataset.pick; localStorage.setItem("cowork-me",me);
+  $("#who").classList.remove("show"); init();
+});
+$("#switch").onclick=pickIdentity;
+
+// ─── presence ───
+function heartbeat(){ if(me&&!document.hidden) store.setPresence(me,{lastSeen:Date.now()}); }
 function setStatus(k,custom){
-  const label=custom || STATUSES.find(s=>s.k===k)?.label || "";
-  store.setPresence(me,{statusKey:custom?"custom":k, statusText:label, since:Date.now(), lastSeen:Date.now()});
+  const def=STATUSES.find(s=>s.k===k);
+  store.setPresence(me,{statusKey:custom?"custom":k,statusText:custom||def.label,since:Date.now(),lastSeen:Date.now()});
 }
 
-// ── drag & drop ──────────────────────────────────────────────
+// ─── sizes (resizable panels & columns, saved on this device) ───
+let sizes={caden:310,ben:310,cols:{}};
+try{ sizes={...sizes,...JSON.parse(localStorage.getItem("cowork-sizes")||"{}")}; sizes.cols=sizes.cols||{} }catch{}
+const saveSizes=()=>{ try{localStorage.setItem("cowork-sizes",JSON.stringify(sizes))}catch{} };
+function applySizes(){
+  $("#panel-caden").style.flexBasis=sizes.caden+"px";
+  $("#panel-ben").style.flexBasis=sizes.ben+"px";
+  $$(".col").forEach(c=>c.style.flexGrow=sizes.cols[c.dataset.id]||1);
+}
+function startDrag(e,kind,info,divEl){
+  e.preventDefault();
+  const x0=e.clientX; let move;
+  if(kind==="panel"){
+    const w0=$("#panel-"+info.who).getBoundingClientRect().width;
+    move=dx=>{ sizes[info.who]=clamp(w0+info.dir*dx,220,560); applySizes(); };
+  }else{
+    const a=document.querySelector(`.col[data-id="${info.a}"]`), b=document.querySelector(`.col[data-id="${info.b}"]`);
+    const aw=a.getBoundingClientRect().width, bw=b.getBoundingClientRect().width;
+    const S=(sizes.cols[info.a]||1)+(sizes.cols[info.b]||1);
+    move=dx=>{
+      const na=clamp(aw+dx,150,Math.max(150,aw+bw-150));
+      sizes.cols[info.a]=S*na/(aw+bw); sizes.cols[info.b]=S-sizes.cols[info.a]; applySizes();
+    };
+  }
+  document.body.classList.add("dragging"); divEl.classList.add("active");
+  const mv=ev=>move(ev.clientX-x0);
+  const up=()=>{
+    removeEventListener("pointermove",mv); removeEventListener("pointerup",up);
+    document.body.classList.remove("dragging"); divEl.classList.remove("active"); saveSizes();
+  };
+  addEventListener("pointermove",mv); addEventListener("pointerup",up);
+}
+function divider(kind,info){
+  const d=h("div",{class:"divider"});
+  d.onpointerdown=e=>startDrag(e,kind,info,d);
+  return d;
+}
+
+// ─── drag & drop of cards ───
 let dragId=null;
-function makeDrop(el, onDrop){
+function makeDrop(el,onDrop){
   el.addEventListener("dragover",e=>{e.preventDefault();el.classList.add("over")});
-  el.addEventListener("dragleave",()=>el.classList.remove("over"));
+  el.addEventListener("dragleave",e=>{ if(!el.contains(e.relatedTarget)) el.classList.remove("over") });
   el.addEventListener("drop",e=>{
     e.preventDefault(); el.classList.remove("over");
     const id=dragId||e.dataTransfer.getData("text/plain");
     if(id) onDrop(id);
   });
 }
+const dropToCol=(id,col)=>store.setTask(id,{idea:false,owner:null,suggestedFor:null,done:false,doneAt:null,col});
 
-// ── cards ────────────────────────────────────────────────────
+// ─── inline "double-click to add" drafts ───
+let draft=null;            // {where:"col:<id>"|"panel:<who>"|"ideas", text:""}
+let rendering=false;
+function addTask(extra){
+  store.setTask(uid(),{title:"",col:null,owner:null,suggestedFor:null,done:false,idea:false,by:me,ts:Date.now(),...extra});
+}
+function commitDraft(){
+  const text=(draft?.text||"").trim(); const where=draft?.where;
+  draft=null;
+  if(text&&where){
+    if(where==="ideas") addTask({title:text,idea:true});
+    else if(where.startsWith("col:")) addTask({title:text,col:where.slice(4)});
+    else if(where.startsWith("panel:")){
+      const w=where.slice(6);
+      if(w===me) addTask({title:text,owner:me});
+      else addTask({title:text,suggestedFor:w});
+    }
+  }
+  renderBoard(); renderLists(); renderIdeas();
+}
+function draftInput(where,placeholder){
+  const inp=h("input",{class:"draft",placeholder,maxlength:"140"});
+  inp.value=draft.text;
+  inp.oninput=()=>{draft.text=inp.value};
+  inp.onkeydown=e=>{
+    if(e.key==="Enter"){ e.preventDefault(); commitDraft(); }
+    if(e.key==="Escape"){ draft=null; renderBoard(); renderLists(); renderIdeas(); }
+  };
+  inp.onblur=()=>{ if(!rendering && draft && !inp.value.trim()){ draft=null; renderBoard(); renderLists(); renderIdeas(); } };
+  return inp;
+}
+function startDraft(where){ draft={where,text:""}; renderBoard(); renderLists(); renderIdeas(); }
+function refocusDraft(){
+  const i=document.querySelector("input.draft");
+  if(i){ i.focus(); const n=i.value.length; i.setSelectionRange(n,n); }
+}
+const isDraft=w=>draft&&draft.where===w;
+const blockDbl=e=>e.target.closest(".card,.chip,button,input,.status,.menu,h2");
+
+// ─── cards ───
 function card(id,t,ctx){
   const el=h("div",{class:"card"+(t.done?" done":""),draggable:"true"});
   el.addEventListener("dragstart",e=>{dragId=id;e.dataTransfer.setData("text/plain",id);el.classList.add("dragging")});
   el.addEventListener("dragend",()=>{dragId=null;el.classList.remove("dragging")});
   el.append(h("div",{class:"t"},t.title));
   const meta=h("div",{class:"meta"});
-  if(t.by) meta.append(h("span",{},`by ${PEOPLE[t.by]||t.by}`));
-  if(ctx==="panel"){
+  if(t.by&&t.by!==t.owner) meta.append(h("span",{},`by ${PEOPLE[t.by]||t.by}`));
+  if(ctx!=="board"){
     const c=cols().find(c=>c.id===t.col);
     if(c) meta.append(h("span",{class:"tag"},c.name));
   }
+  if(t.done&&t.doneAt) meta.append(h("span",{class:"doneat"},`✓ done ${ago(t.doneAt)}`));
   meta.append(h("span",{class:"sp"}));
-  if(ctx==="board"){
-    meta.append(h("button",{title:"Take this",onclick:()=>store.setTask(id,{owner:me,suggestedFor:null})},"take"));
-  }
+  if(ctx==="board") meta.append(h("button",{title:"Take this",onclick:()=>store.setTask(id,{owner:me,suggestedFor:null})},"take"));
   if(ctx==="mine"){
-    meta.append(h("button",{onclick:()=>store.setTask(id,{done:!t.done})},t.done?"undo":"done"));
-    meta.append(h("button",{onclick:()=>store.setTask(id,{owner:null,done:false})},"release"));
+    meta.append(h("button",{onclick:()=>store.setTask(id,t.done?{done:false,doneAt:null}:{done:true,doneAt:Date.now()})},t.done?"undo":"done"));
+    meta.append(h("button",{onclick:()=>store.setTask(id,{owner:null,done:false,doneAt:null})},"release"));
   }
   if(ctx==="suggested-me"){
     meta.append(h("button",{class:"primary",onclick:()=>store.setTask(id,{owner:me,suggestedFor:null})},"accept"));
@@ -254,80 +409,127 @@ function card(id,t,ctx){
   return el;
 }
 
-// ── render ───────────────────────────────────────────────────
+// ─── render: board ───
 function renderBoard(){
-  const board=$("#board"); board.replaceChildren();
-  const tasks=Object.entries(state.tasks);
-  for(const c of cols()){
-    const mine=tasks.filter(([,t])=>t.col===c.id && !t.owner && !t.suggestedFor).sort((a,b)=>a[1].ts-b[1].ts);
-    const col=h("div",{class:"col"});
-    const title=h("h2",{title:"Click to rename",onclick:()=>{
-      const n=prompt("Rename column",c.name); if(n&&n.trim()) store.setCols(cols().map(x=>x.id===c.id?{...x,name:n.trim()}:x));
-    }}, h("span",{},c.name), h("span",{class:"n"},String(mine.length)));
-    col.append(title);
-    if(!mine.length) col.append(h("div",{class:"empty"},"Nothing here"));
-    mine.forEach(([id,t])=>col.append(card(id,t,"board")));
-    makeDrop(col,id=>store.setTask(id,{owner:null,suggestedFor:null,done:false,col:c.id}));
-    board.append(col);
-  }
-  board.append(h("button",{class:"addcol",onclick:()=>{
-    const n=prompt("New column name"); if(n&&n.trim()) store.setCols([...cols(),{id:uid(),name:n.trim()}]);
-  }},"+ column"));
-  // select options (keep selection)
-  const sel=$("#newCol"), prev=sel.value;
-  sel.replaceChildren(...cols().map(c=>h("option",{value:c.id},c.name)));
-  if(cols().some(c=>c.id===prev)) sel.value=prev;
+  rendering=true;
+  const wrap=$("#cols"); wrap.replaceChildren();
+  const cs=cols(); const ids=new Set(cs.map(c=>c.id));
+  const tasks=Object.entries(state.tasks).filter(([,t])=>!t.idea).sort((a,b)=>(a[1].ts||0)-(b[1].ts||0));
+  cs.forEach((c,i)=>{
+    const here=tasks.filter(([,t])=>!t.owner&&!t.suggestedFor&&((t.col===c.id)||(i===0&&!ids.has(t.col))));
+    const col=h("div",{class:"col","data-id":c.id});
+    col.append(h("h2",{},
+      h("span",{class:"name"},c.name),
+      h("span",{class:"n"},String(here.length)),
+      h("button",{class:"iconbtn",title:"Add task",onclick:()=>startDraft("col:"+c.id)},"+"),
+      h("button",{class:"iconbtn",title:"Rename column",onclick:()=>{
+        const n=prompt("Rename column",c.name); if(n&&n.trim()) store.setCols(cs.map(x=>x.id===c.id?{...x,name:n.trim()}:x));
+      }},"✎"),
+      here.length===0&&cs.length>1?h("button",{class:"iconbtn",title:"Delete empty column",onclick:()=>{
+        if(confirm(`Delete column "${c.name}"?`)) store.setCols(cs.filter(x=>x.id!==c.id));
+      }},"×"):null
+    ));
+    if(isDraft("col:"+c.id)) col.append(draftInput("col:"+c.id,"New task, press Enter…"));
+    if(!here.length&&!isDraft("col:"+c.id)) col.append(h("div",{class:"hint"},"Double-click to add a task"));
+    here.forEach(([id,t])=>col.append(card(id,t,"board")));
+    makeDrop(col,id=>dropToCol(id,c.id));
+    col.ondblclick=e=>{ if(!blockDbl(e)) startDraft("col:"+c.id) };
+    wrap.append(col);
+    if(i<cs.length-1) wrap.append(divider("col",{a:c.id,b:cs[i+1].id}));
+  });
+  wrap.append(h("button",{class:"addcol",title:"Add column",onclick:()=>{
+    const n=prompt("New column name"); if(n&&n.trim()) store.setCols([...cs,{id:uid(),name:n.trim()}]);
+  }},"+"));
+  applySizes();
+  rendering=false; refocusDraft();
 }
 
+// ─── render: ideas strip ───
+function renderIdeas(){
+  rendering=true;
+  const box=$("#ideas"); box.replaceChildren();
+  const ideas=Object.entries(state.tasks).filter(([,t])=>t.idea).sort((a,b)=>(a[1].ts||0)-(b[1].ts||0));
+  box.append(h("h3",{},"💡 Ideas",h("button",{class:"iconbtn",title:"Add idea",onclick:()=>startDraft("ideas")},"+")));
+  if(isDraft("ideas")) box.append(draftInput("ideas","Quick idea, press Enter…"));
+  if(!ideas.length&&!isDraft("ideas")) box.append(h("div",{class:"hint"},"Double-click here to jot down an idea. Drag it into a column to turn it into a task."));
+  const chips=h("div",{class:"chips"});
+  ideas.forEach(([id,t])=>{
+    const c=h("div",{class:"chip",draggable:"true"},
+      h("span",{},t.title),
+      t.by?h("span",{class:"hint",style:"padding:0"},PEOPLE[t.by]||""):null,
+      h("button",{class:"x",title:"Delete",onclick:()=>store.delTask(id)},"✕"));
+    c.addEventListener("dragstart",e=>{dragId=id;e.dataTransfer.setData("text/plain",id)});
+    c.addEventListener("dragend",()=>{dragId=null});
+    chips.append(c);
+  });
+  box.append(chips);
+  box.ondblclick=e=>{ if(!blockDbl(e)) startDraft("ideas") };
+  rendering=false; refocusDraft();
+}
+
+// ─── render: side panels ───
 function buildPanel(who){
   const p=$("#panel-"+who); p.replaceChildren();
   p.append(
-    h("div",{class:"who"}, h("span",{class:"dot",id:`dot-${who}`}), PEOPLE[who], who===me?h("span",{class:"tag"},"you"):null),
-    h("div",{class:"sub",id:`seen-${who}`}),
-    h("div",{class:"status",id:`status-${who}`}),
+    h("div",{class:"who"},
+      h("span",{class:"dot",id:`dot-${who}`}), PEOPLE[who],
+      who===me?h("span",{class:"tag"},"you"):null,
+      h("button",{class:"iconbtn plus",title:who===me?"Add a task for yourself":`Suggest a task to ${PEOPLE[who]}`,onclick:()=>startDraft("panel:"+who)},"+")),
+    h("div",{class:"seen",id:`seen-${who}`}),
   );
-  if(who===me){
-    const sel=h("select",{id:"statusSel"},
-      h("option",{value:""},"Set status…"),
-      STATUSES.map(s=>h("option",{value:s.k},s.label)));
-    sel.onchange=()=>{ if(sel.value){setStatus(sel.value);sel.value=""} };
-    const inp=h("input",{id:"statusCustom",placeholder:"Custom status…",maxlength:"80"});
-    const go=h("button",{onclick:()=>{ if(inp.value.trim()){setStatus("custom",inp.value.trim());inp.value=""} }},"Set");
-    inp.onkeydown=e=>{ if(e.key==="Enter") go.click() };
-    p.append(h("div",{class:"statusctl"},sel,h("div",{class:"row"},inp,go)));
+  const mine=who===me;
+  const sb=h(mine?"button":"div",{class:"status"+(mine?" mine":""),id:`status-${who}`},
+    h("span",{class:"sdot"}),
+    h("div",{class:"sbody"},h("div",{class:"stext"}),h("div",{class:"scap"})),
+    mine?h("span",{class:"chev"},"▾"):null);
+  const wrap=h("div",{class:"statuswrap"},sb);
+  if(mine){
+    const menu=h("div",{class:"menu",id:"statusMenu"},
+      STATUSES.map(s=>h("button",{class:"opt",onclick:()=>{setStatus(s.k);menu.classList.remove("open")}},
+        h("span",{class:"sdot "+s.color}),s.label)));
+    const inp=h("input",{placeholder:"Custom status, press Enter…",maxlength:"80"});
+    inp.onkeydown=e=>{ if(e.key==="Enter"&&inp.value.trim()){setStatus("custom",inp.value.trim());inp.value="";menu.classList.remove("open")} };
+    menu.append(h("div",{class:"custom"},inp));
+    sb.onclick=e=>{e.stopPropagation();menu.classList.toggle("open")};
+    wrap.append(menu);
   }
-  p.append(h("div",{id:`lists-${who}`}));
+  p.append(wrap, h("div",{id:`lists-${who}`}));
   makeDrop(p,id=>{
-    if(who===me) store.setTask(id,{owner:me,suggestedFor:null});
-    else store.setTask(id,{owner:null,suggestedFor:who,by:me});
+    if(who===me) store.setTask(id,{idea:false,owner:me,suggestedFor:null});
+    else store.setTask(id,{idea:false,owner:null,suggestedFor:who,by:me});
   });
+  p.ondblclick=e=>{ if(!blockDbl(e)) startDraft("panel:"+who) };
 }
+addEventListener("click",e=>{ if(!e.target.closest(".menu")) $("#statusMenu")?.classList.remove("open") });
 
 function renderPresence(){
   for(const who of Object.keys(PEOPLE)){
     const pr=state.presence[who]||{};
-    const on=pr.lastSeen && Date.now()-pr.lastSeen<ONLINE_WINDOW;
+    const on=pr.lastSeen&&Date.now()-pr.lastSeen<ONLINE_WINDOW;
     $("#dot-"+who)?.classList.toggle("on",!!on);
-    const seen=$("#seen-"+who); if(seen) seen.textContent = on ? "Online now" : `Last online ${ago(pr.lastSeen)}`;
-    const st=$("#status-"+who);
-    if(st){
-      st.replaceChildren();
-      if(pr.statusText){
-        st.append(h("b",{},pr.statusText), h("span",{class:"sub"},`since ${ago(pr.since)}`));
-      } else st.append(h("span",{class:"sub"},"No status set"));
-    }
+    const seen=$("#seen-"+who); if(seen) seen.textContent=on?"Online now":`Last online ${ago(pr.lastSeen)}`;
+    const box=$("#status-"+who); if(!box) continue;
+    const def=STATUSES.find(s=>s.k===pr.statusKey);
+    const color=def?def.color:(pr.statusKey==="custom"?"teal":"gray");
+    const mode=def?def.mode:"since";
+    box.querySelector(".sdot").className="sdot "+color;
+    box.querySelector(".stext").textContent=pr.statusText||(who===me?"Set your status":"No status");
+    box.querySelector(".scap").textContent=pr.statusText?(mode==="since"?`since ${ago(pr.since)}`:ago(pr.since)):(who===me?"Click to choose":"");
   }
 }
 
 function renderLists(){
-  const tasks=Object.entries(state.tasks).sort((a,b)=>a[1].ts-b[1].ts);
+  rendering=true;
+  const tasks=Object.entries(state.tasks).filter(([,t])=>!t.idea).sort((a,b)=>(a[1].ts||0)-(b[1].ts||0));
   for(const who of Object.keys(PEOPLE)){
     const box=$("#lists-"+who); if(!box) continue; box.replaceChildren();
-    const working=tasks.filter(([,t])=>t.owner===who && !t.done);
-    const done=tasks.filter(([,t])=>t.owner===who && t.done);
-    const sugg=tasks.filter(([,t])=>!t.owner && t.suggestedFor===who);
+    const working=tasks.filter(([,t])=>t.owner===who&&!t.done);
+    const done=tasks.filter(([,t])=>t.owner===who&&t.done).sort((a,b)=>(b[1].doneAt||0)-(a[1].doneAt||0));
+    const sugg=tasks.filter(([,t])=>!t.owner&&t.suggestedFor===who);
+    const d="panel:"+who;
     box.append(h("h3",{},`Working on (${working.length})`));
-    if(!working.length) box.append(h("div",{class:"empty"},who===me?"Drag something here or hit “take”.":"Nothing claimed."));
+    if(isDraft(d)) box.append(draftInput(d,who===me?"New task for you, Enter…":`Suggest to ${PEOPLE[who]}, Enter…`));
+    if(!working.length&&!isDraft(d)) box.append(h("div",{class:"hint"},who===me?"Double-click to add, or drag a card here.":`Double-click to suggest something to ${PEOPLE[who]}.`));
     working.forEach(([id,t])=>box.append(card(id,t,who===me?"mine":"panel")));
     if(sugg.length){
       box.append(h("h3",{},`Suggested for ${who===me?"you":PEOPLE[who]} (${sugg.length})`));
@@ -338,38 +540,69 @@ function renderLists(){
       done.forEach(([id,t])=>box.append(card(id,t,who===me?"mine":"panel")));
     }
   }
+  rendering=false; refocusDraft();
 }
 
-function renderAll(){ renderBoard(); renderLists(); renderPresence(); }
+// ─── tour ───
+let tourI=0, tourSteps=[];
+function buildTour(){
+  tourSteps=[
+    {t:"Welcome 👋",d:"A 30-second tour of your shared board. You can replay it anytime with the ? button in the top right.",sel:null},
+    {t:"Set your status",d:"Click your status box, then pick one: Online (green), vibe coding (blue), waiting for upload (blue), uploading (red), uploaded or away (gray). You can type a custom one too.",sel:"#status-"+me},
+    {t:"Add tasks fast",d:"Double-click any column, type, press Enter. Or hit the + next to its name. Esc cancels.",sel:"#cols"},
+    {t:"Claim, release, suggest",d:"Drag a card onto your panel to claim it, back onto a column to release it, or onto "+PEOPLE[other()]+"'s panel to suggest it. On a phone, use the buttons on each card.",sel:"#panel-"+other()},
+    {t:"Suggest straight to "+PEOPLE[other()],d:"Double-click "+PEOPLE[other()]+"'s panel and type. They'll see it under Suggested for them and can accept or decline.",sel:"#panel-"+other()},
+    {t:"Ideas",d:"Double-click the Ideas strip to jot down anything. Drag an idea into a column when it becomes a real task.",sel:"#ideas"},
+    {t:"Columns & sizes",d:"Drag the thin dividers to resize columns and side panels. ✎ renames a column, the big + on the right adds one.",sel:"#cols"},
+    {t:"Done is timestamped",d:"Press done on your own task and it moves to Done with the time you finished it. That's it. Have fun!",sel:"#panel-"+me},
+  ];
+}
+function showTour(){
+  $$(".tour-hl").forEach(e=>e.classList.remove("tour-hl"));
+  const s=tourSteps[tourI];
+  $("#tourTitle").textContent=s.t; $("#tourText").textContent=s.d;
+  $("#tourSteps").textContent=`${tourI+1} / ${tourSteps.length}`;
+  $("#tourBack").style.visibility=tourI?"visible":"hidden";
+  $("#tourNext").textContent=tourI===tourSteps.length-1?"Done":"Next";
+  if(s.sel) $(s.sel)?.classList.add("tour-hl");
+  $("#tour").classList.add("show");
+}
+function endTour(){
+  $$(".tour-hl").forEach(e=>e.classList.remove("tour-hl"));
+  $("#tour").classList.remove("show");
+  try{localStorage.setItem("cowork-tour-seen","1")}catch{}
+}
+function startTour(){ buildTour(); tourI=0; showTour(); }
+$("#tourNext").onclick=()=>{ if(tourI>=tourSteps.length-1) endTour(); else {tourI++;showTour()} };
+$("#tourBack").onclick=()=>{ if(tourI>0){tourI--;showTour()} };
+$("#tourSkip").onclick=endTour;
+$("#help").onclick=startTour;
 
-// ── add task ─────────────────────────────────────────────────
-$("#addbar").onsubmit=e=>{
-  e.preventDefault();
-  const title=$("#newTitle").value.trim(); if(!title) return;
-  const dest=$("#newFor").value;
-  const t={title,col:$("#newCol").value||cols()[0].id,owner:null,suggestedFor:null,done:false,by:me,ts:Date.now()};
-  if(dest==="me") t.owner=me;
-  if(dest==="other") t.suggestedFor=other();
-  store.setTask(uid(),t);
-  $("#newTitle").value=""; $("#newFor").value="";
-};
-$("#newFor").querySelector('[value="other"]').textContent="Suggest to the other person";
-
-// ── init ─────────────────────────────────────────────────────
-let started=false;
+// ─── init ───
+let started=false, lastSig="";
 function init(){
   if(!me){ pickIdentity(); return; }
   $("#meName").textContent=PEOPLE[me];
   buildPanel("caden"); buildPanel("ben");
-  $("#newFor").querySelector('[value="other"]').textContent=`Suggest to ${PEOPLE[other()]}`;
+  // dividers for the side panels
+  const dc=$("#div-caden"), db=$("#div-ben");
+  dc.onpointerdown=e=>startDrag(e,"panel",{who:"caden",dir:1},dc);
+  db.onpointerdown=e=>startDrag(e,"panel",{who:"ben",dir:-1},db);
   if(!started){
     started=true;
-    store.onChange(s=>{ state=s; renderAll(); });
+    store.onChange(s=>{
+      state=s;
+      const sig=JSON.stringify([s.tasks,s.cols]);
+      if(sig!==lastSig){ lastSig=sig; renderBoard(); renderLists(); renderIdeas(); }
+      renderPresence();
+    });
     setInterval(heartbeat,HEARTBEAT);
-    setInterval(renderPresence,15_000);
+    setInterval(()=>{ renderPresence(); if(!draft){ renderLists(); } },20_000);
     document.addEventListener("visibilitychange",heartbeat);
   }
-  heartbeat(); renderAll();
+  lastSig=""; renderBoard(); renderLists(); renderIdeas(); renderPresence(); heartbeat();
+  applySizes();
+  if(!localStorage.getItem("cowork-tour-seen")) startTour();
 }
 init();
 </script>
