@@ -144,9 +144,9 @@ async function firebaseApi(cfg) {
       return rows;
     },
     usersSince: since => count(query(collection(db, "users"), where("createdAt", ">=", Timestamp.fromMillis(since)))),
-    // premiumInterest/{uid} is written by the app's notePremiumInterest function (PR #50)
+    // users/{uid}/premiumInterest/current, written by the app's notePremiumInterest function (PR #50)
     async premium() {
-      const col = collection(db, "premiumInterest"), wk = Date.now() - 7 * 864e5, wk2 = Date.now() - 14 * 864e5;
+      const col = collectionGroup(db, "premiumInterest"), wk = Date.now() - 7 * 864e5, wk2 = Date.now() - 14 * 864e5;
       const [total, thisWeek, lastWeek] = await Promise.all([
         count(col),
         count(query(col, where("firstAt", ">=", Timestamp.fromMillis(wk)))),
