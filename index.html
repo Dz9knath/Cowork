@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@10.3.1/dist/gridstack.min.css">
+<link rel="stylesheet" href="console.css">
 <script src="https://cdn.jsdelivr.net/npm/gridstack@10.3.1/dist/gridstack-all.js"></script>
 <style>
   :root{
@@ -225,11 +226,13 @@
     <span id="wordmark">Reel<b>2</b>Real</span>
     <span class="sub">Cowork</span>
   </div>
+  <nav class="tabs" id="tabs"><a data-view="board" class="on">Board</a><a data-view="console">Console</a></nav>
   <div class="spacer"></div>
   <span id="mode">local mode</span>
 </header>
 
-<main><div class="grid-stack" id="grid"></div></main>
+<main id="boardView"><div class="grid-stack" id="grid"></div></main>
+<section id="consoleView"></section>
 
 <footer>You are <b id="meName"></b> (<a id="switch">switch</a>) <span class="rl-sep">&nbsp;·&nbsp;</span> <a id="resetLayout">Reset layout</a></footer>
 
@@ -278,7 +281,7 @@ const STATUSES = [
   {k:"away",      label:"Away",                            color:"gray",  mode:"ago"},
 ];
 const SWATCHES = ["green","blue","red","gray","teal","sun","coral","purple"];
-const TOUR_VERSION = "2026-11-06-a"; // bump on every update so the tour shows again
+const TOUR_VERSION = "2026-11-08-a"; // bump on every update so the tour shows again
 const ONLINE_WINDOW = 75_000;
 const HEARTBEAT = 30_000;
 
@@ -587,7 +590,7 @@ let manualH={}; try{manualH=JSON.parse(localStorage.getItem(MKEY)||"{}")||{}}cat
 const saveManual=()=>{ try{localStorage.setItem(MKEY,JSON.stringify(manualH))}catch{} };
 const AUTO_MIN=2, AUTO_MAX=14;
 function autoFit(){
-  if(!grid||isPhone||grid.getColumn()!==12) return;
+  if(!grid||isPhone||grid.getColumn()!==12||document.body.classList.contains("view-console")) return;
   const cell=grid.getCellHeight();
   grid.batchUpdate();
   Object.entries(boxes).forEach(([id,it])=>{
@@ -1022,6 +1025,7 @@ function buildTour(){
     isPhone?{t:"On your phone",d:"Tap a list's name to open or close it. Long-press a card and drag it: two big Ben / Caden targets appear at the bottom, or drop it on any list. The reassign button on a card does the same from a menu.",sel:null}:{t:"Arrange the board",d:"Drag a box by its header to move it and drag its edges or corner to resize it. The other boxes make room. Long lists scroll inside their box. The + Column tile adds a column. Reset layout is in the footer.",sel:null},
     {t:"Notes",d:"Double-click empty space in Notes to write a note, signed with your name. Double-click a note to turn it into a task: it opens ready to edit, so shorten it and press Enter.",sel:"#box-ideas"},
     {t:`Message ${o}`,d:`The speech-bubble icon on ${o}'s box sends a short message (140 characters). It pops up for them right away, or the next time they open the board.`,sel:"#box-panel-"+other()},
+    {t:"Console",d:"The Console tab at the top is the back office for Reel 2 Real: app numbers, the live reel pipeline with Retry, users and trips, waitlist sign-ups and the announcement banner. It shows demo data until it's connected to the app.",sel:"#tabs"},
     {t:"Done is timestamped",d:"Press done on your own task and it moves to Done with the time you finished it. That's the tour.",sel:"#box-panel-"+me},
   ];
 }
@@ -1045,6 +1049,31 @@ $("#tourNext").onclick=()=>{ if(tourI>=tourSteps.length-1) endTour(); else {tour
 $("#tourBack").onclick=()=>{ if(tourI>0){tourI--;showTour()} };
 $("#tourSkip").onclick=endTour;
 function endTourIfOpen(){ if($("#tour").classList.contains("show")) endTour(); }
+
+// ─── Board / Console tabs (#console in the URL opens the console) ───
+let consoleMod=null;
+async function showView(){
+  const v=location.hash==="#console"?"console":"board";
+  document.body.classList.toggle("view-console",v==="console");
+  $$("#tabs a").forEach(a=>a.classList.toggle("on",a.dataset.view===v));
+  if(v==="console"){
+    if(!consoleMod){
+      try{ consoleMod=await import("./console.js"); }
+      catch(e){ $("#consoleView").textContent="Couldn't load the console: "+e.message; return; }
+    }
+    consoleMod.mountConsole($("#consoleView"));
+  }else{
+    consoleMod&&consoleMod.leaveConsole();
+    if(grid) rerender();
+  }
+}
+$$("#tabs a").forEach(a=>a.onclick=()=>{
+  const want=a.dataset.view==="console"?"#console":"";
+  if(location.hash!==want) history.pushState(null,"",want||location.pathname+location.search);
+  showView();
+});
+addEventListener("popstate",showView);
+addEventListener("hashchange",showView);
 
 // ─── init ───
 let started=false, lastSig="";
@@ -1071,6 +1100,7 @@ function init(){
   }
   lastSig=""; rerender(); renderPresence(); heartbeat();
   tourChecked=false; maybeTour();
+  showView();
 }
 let tourChecked=false;
 function maybeTour(){
