@@ -29,8 +29,7 @@ const PRICING = [
   { k: "priced", label: "Priced", c: "green" },
   { k: "failed", label: "Failed", c: "red" },
 ];
-const SECTIONS = [
-  { k: "overview", label: "Overview" },
+export const SECTIONS = [
   { k: "pipeline", label: "Reel pipeline" },
   { k: "users", label: "Users & trips" },
   { k: "waitlist", label: "Waitlist" },
@@ -130,6 +129,30 @@ async function firebaseApi(cfg) {
         ? query(reels(), where("status", "==", status), orderBy("createdAt", "desc"), limit(100))
         : query(reels(), orderBy("createdAt", "desc"), limit(100));
       return onSnapshot(q, s => cb(s.docs.map(reelFrom)), onErr);
+    },
+    async attention(n) {
+      const s = await getDocs(query(reels(), where("status", "in", ["failed", "needsInput"]), orderBy("createdAt", "desc"), limit(n)));
+      return s.docs.map(reelFrom);
+    },
+    async recentUsers(n) {
+      const s = await getDocs(query(collection(db, "users"), orderBy("createdAt", "desc"), limit(n)));
+      const rows = s.docs.map(d => ({ uid: d.id, homeCity: d.get("homeCity"), createdAt: ms(d.get("createdAt")) }));
+      await Promise.all(rows.map(async r => {
+        try { const p = await getDoc(doc(db, "publicProfiles", r.uid)); r.username = p.exists() ? p.get("username") : null; }
+        catch { r.username = null; } // a missing profile only hides the username
+      }));
+      return rows;
+    },
+    usersSince: since => count(query(collection(db, "users"), where("createdAt", ">=", Timestamp.fromMillis(since)))),
+    // premiumInterest/{uid} is written by the app's notePremiumInterest function (PR #50)
+    async premium() {
+      const col = collection(db, "premiumInterest"), wk = Date.now() - 7 * 864e5, wk2 = Date.now() - 14 * 864e5;
+      const [total, thisWeek, lastWeek] = await Promise.all([
+        count(col),
+        count(query(col, where("firstAt", ">=", Timestamp.fromMillis(wk)))),
+        count(query(col, where("firstAt", ">=", Timestamp.fromMillis(wk2)), where("firstAt", "<", Timestamp.fromMillis(wk)))),
+      ]);
+      return { total, thisWeek, lastWeek };
     },
     async getTrip(uid, id) {
       const s = await getDoc(doc(db, "users", uid, "trips", id));
@@ -237,6 +260,10 @@ function demoApi() {
       const w = () => cb(reels.filter(r => !status || r.status === status).slice(0, 100).map(r => ({ ...r })));
       watchers.add(w); setTimeout(w, 120); return () => watchers.delete(w);
     },
+    attention: async n => wait(reels.filter(r => r.status === "failed" || r.status === "needsInput").slice(0, n).map(r => ({ ...r }))),
+    recentUsers: async n => wait(users.slice().sort((a, b) => b.createdAt - a.createdAt).slice(0, n)),
+    usersSince: async since => wait(users.filter(u => u.createdAt >= since).length),
+    premium: async () => wait({ total: 23, thisWeek: 9, lastWeek: 5 }),
     getTrip: async (uid, id) => wait((tripsBy[uid] || []).find(t => t.id === id) || null),
     async retry(kind, uid, id) {
       if (kind === "sharedItem") { const r = reels.find(x => x.id === id && x.uid === uid); if (!r || r.status !== "failed") throw new Error("Only failed work can be retried."); r.status = "queued"; r.error = null; }
@@ -257,39 +284,54 @@ function demoApi() {
 }
 
 // ─── the console UI ───
-let api = null, me = null, root = null, section = "overview", unsub = null, booted = false;
+let api = null, me = null, root = null, section = "pipeline", unsub = null, bootP = null;
+const authSubs = new Set();
 
-export async function mountConsole(el) {
-  root = el;
-  try { section = localStorage.getItem("console-section") || "overview"; } catch { /* storage blocked: start on Overview */ }
-  if (!SECTIONS.some(s => s.k === section)) section = "overview";
-  if (booted) return render();
-  booted = true;
-  root.replaceChildren(h("div", { class: "loading" }, "Loading console…"));
-  try { api = APP_FIREBASE_CONFIG ? await firebaseApi(APP_FIREBASE_CONFIG) : demoApi(); }
-  catch (e) { root.replaceChildren(h("div", { class: "err-banner" }, "Couldn't load the console: " + niceError(e))); return; }
-  api.onAuth(u => { me = u; render(); });
+// Loads the data layer once; every view and dashboard window waits on this
+export function boot() {
+  if (!bootP) bootP = (async () => {
+    api = APP_FIREBASE_CONFIG ? await firebaseApi(APP_FIREBASE_CONFIG) : demoApi();
+    await new Promise(resolve => {
+      let first = true;
+      api.onAuth(u => { me = u; if (first) { first = false; resolve(); } else authSubs.forEach(f => f()); });
+    });
+  })();
+  return bootP;
+}
+export const onAuthChange = f => { authSubs.add(f); return () => authSubs.delete(f); };
+export const authInfo = () => ({ live: !!(api && api.live), email: me && me.email, admin: !!(me && me.admin) });
+export const signOut = () => api && api.signOut();
+
+// A full backend page (Reel pipeline, Users & trips, Waitlist, Announcement, or the sign-in form)
+export async function renderSection(el, key) {
+  root = el; section = key;
+  if (!api) root.replaceChildren(h("div", { class: "loading" }, "Loading…"));
+  try { await boot(); }
+  catch (e) { root.replaceChildren(h("div", { class: "err-banner" }, "Couldn't load the app data: " + niceError(e))); return; }
+  if (root === el && section === key) render();
 }
 
 function render() {
   if (unsub) { unsub(); unsub = null; }
+  if (section === "signin") {
+    if (me) { location.hash = ""; return; }
+    return renderLogin();
+  }
   if (!me) return renderLogin();
   if (!me.admin) return renderNotAdmin();
-  const nav = h("nav", { class: "cnav" },
-    SECTIONS.map(s => h("button", { class: s.k === section ? "on" : "", onclick: () => { section = s.k; try { localStorage.setItem("console-section", s.k); } catch { /* not remembered, fine */ } render(); } }, s.label)),
-    h("div", { class: "who-am-i" }, me.email, api.live ? [h("br"), h("a", { onclick: () => api.signOut() }, "Sign out")] : null));
   const main = h("div", { class: "cmain" });
-  if (!api.live) main.append(h("div", { class: "demo-banner" }, h("b", {}, "Demo data."),
-    " Not connected to the app yet. Paste the app's Firebase config into console.js once PR #49 is deployed."));
-  root.replaceChildren(h("div", { class: "con" }, nav, main));
-  ({ overview: renderOverview, pipeline: renderPipeline, users: renderUsers, waitlist: renderWaitlist, announcement: renderAnnouncement })[section](main);
+  if (!api.live) main.append(demoBanner());
+  root.replaceChildren(main);
+  ({ pipeline: renderPipeline, users: renderUsers, waitlist: renderWaitlist, announcement: renderAnnouncement })[section](main);
 }
+const demoBanner = () => h("div", { class: "demo-banner" }, h("b", {}, "Demo data."),
+  " Not connected to the app yet. Paste the app's Firebase config into console.js once PR #49 is deployed.");
 
-function box(title, sub, ...rest) {
+function box(title, sub) {
   const head = h("div", { class: "chead" }, h("h2", {}, title, sub ? h("span", { class: "sub" }, sub) : null));
   const body = h("div", { class: "cbody" });
   const b = h("section", { class: "cbox" }, head, body);
-  return { el: b, head, body, add: (...x) => head.append(...x), rest };
+  return { el: b, head, body, add: (...x) => head.append(...x) };
 }
 
 function renderLogin() {
@@ -303,7 +345,7 @@ function renderLogin() {
     catch (err) { msg.textContent = /invalid-credential|wrong-password|user-not-found/.test(err.code || "") ? "Wrong email or password." : niceError(err); }
     btn.disabled = false;
   } }, email, pass, msg, btn);
-  root.replaceChildren(h("div", { class: "login" }, h("h2", {}, "Reel 2 Real console"), h("p", {}, "Sign in with your admin account."), form));
+  root.replaceChildren(h("div", { class: "login" }, h("h2", {}, "Sign in to the app backend"), h("p", {}, "Use your Reel 2 Real admin account. The board works without this."), form));
 }
 
 function renderNotAdmin() {
@@ -314,45 +356,105 @@ function renderNotAdmin() {
     h("div", { class: "actions" }, h("button", { onclick: () => api.signOut() }, "Sign out"))));
 }
 
-// Overview
-function renderOverview(main) {
-  const tiles = h("div", { class: "tiles" });
-  const tile = (k, v, d) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v" }, v), d ? h("div", { class: "d" }, d) : null);
-  [["Users", "…"], ["Reels shared", "…"], ["Trips", "…"], ["Waitlist", "…"]].forEach(([k, v]) => tiles.append(tile(k, v)));
-  const chartBox = box("Reels shared", "last 14 days");
-  const pipeBox = box("Pipeline right now");
-  main.append(tiles, h("div", { class: "split" }, chartBox.el, pipeBox.el));
-  chartBox.body.append(h("div", { class: "loading" }, "Loading…"));
-  pipeBox.body.append(h("div", { class: "loading" }, "Loading…"));
+// ─── dashboard windows ───
+// Short cache so re-drawing the dashboard doesn't re-run every count query
+const cache = new Map();
+function cached(key, fn, ttl = 30_000) {
+  const hit = cache.get(key);
+  if (hit && Date.now() - hit.at < ttl) return hit.p;
+  const p = fn(); cache.set(key, { at: Date.now(), p });
+  p.catch(() => cache.delete(key));
+  return p;
+}
+export function refreshWidgets() { cache.clear(); }
 
-  api.counts().then(c => {
-    tiles.replaceChildren(tile("Users", fmtN(c.users)), tile("Reels shared", fmtN(c.reels)), tile("Trips", fmtN(c.trips)), tile("Waitlist", fmtN(c.waitlist), "sign-ups"));
-    const statList = (title, list, counts) => {
-      const total = list.reduce((s, x) => s + (counts[x.k] || 0), 0) || 1;
-      return [h("h3", { class: "sec", style: "margin:4px 0 4px" }, title), ...list.map(s => h("div", { class: "statrow" },
-        h("span", { class: "lbl" }, pill(list, s.k)), h("span", { class: "bar" }, h("i", { class: "bg-" + s.c, style: `width:${(100 * (counts[s.k] || 0) / total).toFixed(1)}%` })),
-        h("span", { class: "num" }, fmtN(counts[s.k] || 0))))];
-    };
-    pipeBox.body.replaceChildren(...statList("Reels (finding the place)", REEL_STATUSES, c.reelStatus), h("div", { style: "height:10px" }), ...statList("Trips (pricing)", PRICING, c.pricing));
-  }).catch(e => { pipeBox.body.replaceChildren(h("div", { class: "err-banner" }, niceError(e))); tiles.replaceChildren(h("div", { class: "err-banner", style: "grid-column:1/-1" }, niceError(e))); });
+export async function widget(el, kind) {
+  el.replaceChildren(h("div", { class: "loading" }, "Loading…"));
+  try { await boot(); }
+  catch (e) { el.replaceChildren(h("div", { class: "err-banner" }, niceError(e))); return; }
+  if (!me) return el.replaceChildren(h("div", { class: "gate" }, h("p", {}, "Sign in with your admin account to see app data."),
+    h("button", { class: "primary", onclick: () => { location.hash = "#signin"; } }, "Sign in")));
+  if (!me.admin) return el.replaceChildren(h("div", { class: "gate" }, h("p", {}, `${me.email} isn't an admin yet.`),
+    h("button", { onclick: () => { location.hash = "#signin"; } }, "How to fix")));
+  ({ pipeline: wPipeline, reels: wReels, users: wUsers, premium: wPremium })[kind](el);
+}
+const fail = (el, e) => el.replaceChildren(h("div", { class: "err-banner" }, niceError(e)));
 
-  const DAYS = 14;
-  api.reelTimes(DAYS).then(times => {
-    const days = Array.from({ length: DAYS }, (_, i) => dayStart(Date.now() - (DAYS - 1 - i) * 864e5));
-    const counts = days.map(d => times.filter(t => t >= d && t < d + 864e5).length);
-    const max = Math.max(1, ...counts), peak = counts.indexOf(Math.max(...counts));
-    const chart = h("div", { class: "chart", role: "img", "aria-label": `Reels shared per day, last ${DAYS} days` });
-    const xs = h("div", { class: "chart-x" });
-    days.forEach((d, i) => {
-      const label = new Date(d).toLocaleDateString(undefined, { day: "numeric", month: "short" });
-      chart.append(h("div", { class: "col" },
-        (i === peak || i === DAYS - 1) && counts[i] ? h("span", { class: "val", style: `bottom:${(100 * counts[i] / max).toFixed(1)}%` }, counts[i]) : null,
-        h("i", { style: `height:${(100 * counts[i] / max).toFixed(1)}%` }),
-        h("span", { class: "tip" }, `${label}: ${counts[i]} reel${counts[i] === 1 ? "" : "s"}`)));
-      xs.append(h("span", {}, i % 2 === (DAYS - 1) % 2 ? new Date(d).toLocaleDateString(undefined, { day: "numeric" }) : ""));
+function statList(list, counts) {
+  const total = list.reduce((s, x) => s + (counts[x.k] || 0), 0) || 1;
+  return list.map(s => h("div", { class: "statrow" },
+    h("span", { class: "lbl" }, pill(list, s.k)), h("span", { class: "bar" }, h("i", { class: "bg-" + s.c, style: `width:${(100 * (counts[s.k] || 0) / total).toFixed(1)}%` })),
+    h("span", { class: "num" }, fmtN(counts[s.k] || 0))));
+}
+
+function wPipeline(el) {
+  Promise.all([cached("counts", () => api.counts()), cached("attention", () => api.attention(4))]).then(([c, att]) => {
+    const list = h("div", {});
+    if (!att.length) list.append(h("div", { class: "mut", style: "padding:6px 0" }, "Nothing needs attention."));
+    att.forEach(r => {
+      const say = h("span", { class: "mut", style: "font-size:.8rem" });
+      list.append(h("div", { class: "attn" },
+        pill(REEL_STATUSES, r.status),
+        h("span", { class: "cap", title: r.error || r.caption || "" }, r.caption || r.url || "—"),
+        h("span", { class: "mut when" }, ago(r.createdAt)),
+        r.status === "failed" ? h("button", { class: "sm", onclick: async e => {
+          e.currentTarget.disabled = true;
+          try { await api.retry("sharedItem", r.uid, r.id); say.textContent = "re-queued"; refreshWidgets(); }
+          catch (err) { say.textContent = niceError(err); e.currentTarget.disabled = false; }
+        } }, "Retry") : null, say));
     });
-    chartBox.body.replaceChildren(chart, xs);
-  }).catch(e => chartBox.body.replaceChildren(h("div", { class: "err-banner" }, niceError(e))));
+    el.replaceChildren(
+      h("div", { class: "two" },
+        h("div", {}, h("h3", { class: "sec", style: "margin:0 0 2px" }, "Reels"), ...statList(REEL_STATUSES, c.reelStatus)),
+        h("div", {}, h("h3", { class: "sec", style: "margin:0 0 2px" }, "Trip pricing"), ...statList(PRICING, c.pricing))),
+      h("h3", { class: "sec", style: "margin:12px 0 4px" }, "Needs attention"), list);
+  }).catch(e => fail(el, e));
+}
+
+function drawChart(times, days) {
+  const starts = Array.from({ length: days }, (_, i) => dayStart(Date.now() - (days - 1 - i) * 864e5));
+  const counts = starts.map(d => times.filter(t => t >= d && t < d + 864e5).length);
+  const max = Math.max(1, ...counts), peak = counts.indexOf(Math.max(...counts));
+  const chart = h("div", { class: "chart", role: "img", "aria-label": `Reels shared per day, last ${days} days` });
+  const xs = h("div", { class: "chart-x" });
+  starts.forEach((d, i) => {
+    const label = new Date(d).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+    chart.append(h("div", { class: "col" },
+      (i === peak || i === days - 1) && counts[i] ? h("span", { class: "val", style: `bottom:${(100 * counts[i] / max).toFixed(1)}%` }, counts[i]) : null,
+      h("i", { style: `height:${(100 * counts[i] / max).toFixed(1)}%` }),
+      h("span", { class: "tip" }, `${label}: ${counts[i]} reel${counts[i] === 1 ? "" : "s"}`)));
+    xs.append(h("span", {}, i % 2 === (days - 1) % 2 ? new Date(d).toLocaleDateString(undefined, { day: "numeric" }) : ""));
+  });
+  return [chart, xs];
+}
+
+function wReels(el) {
+  Promise.all([cached("counts", () => api.counts()), cached("times14", () => api.reelTimes(14))]).then(([c, times]) => {
+    const mini = (k, v) => h("div", { class: "mini" }, h("div", { class: "v" }, fmtN(v)), h("div", { class: "k" }, k));
+    el.replaceChildren(h("div", { class: "minis" }, mini("users", c.users), mini("reels", c.reels), mini("trips", c.trips), mini("waitlist", c.waitlist)), ...drawChart(times, 14));
+  }).catch(e => fail(el, e));
+}
+
+function wUsers(el) {
+  const wk = Date.now() - 7 * 864e5;
+  Promise.all([cached("usersWeek", () => api.usersSince(wk)), cached("recentUsers", () => api.recentUsers(3))]).then(([n, rows]) => {
+    el.replaceChildren(h("div", { class: "kv" }, h("b", {}, fmtN(n)), " new this week"),
+      ...rows.map(u => h("div", { class: "line" }, h("span", {}, u.username ? "@" + u.username : h("span", { class: "mut" }, "no username")),
+        h("span", { class: "mut" }, [u.homeCity, ago(u.createdAt)].filter(Boolean).join(" · ")))));
+  }).catch(e => fail(el, e));
+}
+
+function wPremium(el) {
+  cached("premium", () => api.premium()).then(p => {
+    const d = p.thisWeek - p.lastWeek;
+    el.replaceChildren(h("div", { class: "kv" }, h("b", {}, fmtN(p.total)), " people tapped Premium"),
+      h("div", { class: "line" }, h("span", {}, `${fmtN(p.thisWeek)} this week`),
+        h("span", { class: d > 0 ? "c-green" : d < 0 ? "c-red" : "mut" }, d === 0 ? "same as last week" : `${d > 0 ? "▲" : "▼"} ${Math.abs(d)} vs last week`)));
+  }).catch(e => {
+    // Until the app update that records Premium taps is deployed, the collection isn't readable
+    if (/permission-denied/.test((e && e.code) || "")) el.replaceChildren(h("div", { class: "mut" }, "Not tracked yet. Starts once the app update with the Premium button is deployed."));
+    else fail(el, e);
+  });
 }
 
 // Reel pipeline
@@ -394,7 +496,7 @@ function reelDetail(r) {
     try { await api.retry(kind, r.uid, id); } catch (err) { say.textContent = niceError(err); e.currentTarget.disabled = false; }
   } }, label);
   if (r.status === "failed") actions.append(retryBtn("Retry detection", "sharedItem", r.id));
-  actions.append(h("button", { onclick: e => { e.stopPropagation(); userToOpen = r.uid; section = "users"; render(); } }, "Open user"), say);
+  actions.append(h("button", { onclick: e => { e.stopPropagation(); userToOpen = r.uid; location.hash = "#users"; } }, "Open user"), say);
   wrap.append(h("div", { class: "detail" },
     f("Link", r.url ? h("a", { href: r.url, target: "_blank", rel: "noopener" }, "Open reel ↗") : "—"),
     f("Caption", r.caption), f("Error", r.error), f("User hint", r.hint), f("User", h("span", { class: "mono" }, r.uid)), f("Reel ID", h("span", { class: "mono" }, r.id))));
@@ -546,4 +648,4 @@ function renderAnnouncement(main) {
   }).catch(e => b.body.replaceChildren(h("div", { class: "err-banner" }, niceError(e))));
 }
 
-export function leaveConsole() { if (unsub) { unsub(); unsub = null; } }
+export function leaveConsole() { if (unsub) { unsub(); unsub = null; } root = null; }
